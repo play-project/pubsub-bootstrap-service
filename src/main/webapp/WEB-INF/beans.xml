@@ -26,6 +26,9 @@
 		</cxf:features>
 	</cxf:bus>
 
+	<bean id="governanceclient"
+		class="eu.playproject.platform.service.bootstrap.GovernanceClientImpl" />
+
 	<bean id="topicmanager"
 		class="eu.playproject.platform.service.bootstrap.DSBTopicManager" />
 
@@ -36,12 +39,14 @@
 		class="eu.playproject.platform.service.bootstrap.DSBSubscribesToECBootstrapServiceImpl">
 		<property name="topicManager" ref="topicmanager" />
 		<property name="eventCloudClientFactory" ref="eventcloudclientfactory" />
+		<property name="governanceClient" ref="governanceclient" />
 	</bean>
-	
+
 	<bean id="ecsubscribestodsbbootstrap"
 		class="eu.playproject.platform.service.bootstrap.ECSubscribesToDSBBootstrapServiceImpl">
 		<property name="topicManager" ref="topicmanager" />
 		<property name="eventCloudClientFactory" ref="eventcloudclientfactory" />
+		<property name="governanceClient" ref="governanceclient" />
 	</bean>
 
 	<!-- REST init service -->
@@ -59,7 +64,7 @@
 
 	<jaxws:endpoint id="dsbecboostrap" implementor="#dsbsubscribestoecbootstrap"
 		address="/DSB2ECBootstrapService" />
-		
+
 	<jaxws:endpoint id="ecdsbboostrap" implementor="#ecsubscribestodsbbootstrap"
 		address="/EC2DSBBootstrapService" />
 

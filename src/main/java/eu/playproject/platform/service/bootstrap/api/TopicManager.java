@@ -3,8 +3,6 @@
  */
 package eu.playproject.platform.service.bootstrap.api;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
 /**
@@ -12,13 +10,6 @@ import javax.xml.namespace.QName;
  * 
  */
 public interface TopicManager {
-
-	/**
-	 * Get all the available topics
-	 * 
-	 * @return
-	 */
-	List<QName> getTopics(String endpoint) throws BootstrapFault;
 
 	/**
 	 * Subscribe to a notification producer on behalf of the subscriber

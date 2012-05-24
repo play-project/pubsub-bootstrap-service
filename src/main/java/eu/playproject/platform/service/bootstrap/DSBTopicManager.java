@@ -3,14 +3,12 @@
  */
 package eu.playproject.platform.service.bootstrap;
 
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
 import org.petalslink.dsb.notification.client.http.simple.HTTPProducerClient;
-import org.petalslink.dsb.notification.client.http.simple.HTTPProducerRPClient;
 import org.petalslink.dsb.notification.commons.NotificationException;
 
 import com.ebmwebsourcing.wsstar.basefaults.datatypes.impl.impl.WsrfbfModelFactoryImpl;
@@ -45,18 +43,6 @@ public class DSBTopicManager implements TopicManager {
 	}
 
 	@Override
-	public List<QName> getTopics(String endpoint) throws BootstrapFault {
-		logger.info("Getting topic from " + endpoint);
-		HTTPProducerRPClient client = new HTTPProducerRPClient(endpoint);
-		try {
-			return client.getTopics();
-		} catch (NotificationException e) {
-			logger.log(Level.SEVERE, "Problem while getting topics", e);
-			throw new BootstrapFault(e);
-		}
-	}
-
-	@Override
 	public String subscribe(String producer, QName topic, String subscriber)
 			throws BootstrapFault {
 		String id = null;
@@ -74,5 +60,4 @@ public class DSBTopicManager implements TopicManager {
 		}
 		return id;
 	}
-
 }

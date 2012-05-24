@@ -3,6 +3,7 @@
  */
 package eu.playproject.platform.service.bootstrap;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,8 +122,10 @@ public class EventCloudClientFactoryMock implements EventCloudClientFactory {
 					@Override
 					public List<String> getSubscribeProxyEndpointUrls(
 							String arg0) {
-						// TODO Auto-generated method stub
-						return null;
+						List<String> result = new ArrayList<String>();
+						result.add(eventCloudEndpointPrefix + "SubscribePoxy");
+						System.out.println("Get subscribe proxy " + result);
+						return result;
 					}
 
 				});

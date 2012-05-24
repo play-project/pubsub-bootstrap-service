@@ -10,9 +10,13 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 
 import eu.playproject.commons.utils.StreamHelper;
+import eu.playproject.governance.api.GovernanceExeption;
+import eu.playproject.governance.api.bean.Metadata;
+import eu.playproject.governance.api.bean.Topic;
 import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
 import eu.playproject.platform.service.bootstrap.api.BootstrapService;
 import eu.playproject.platform.service.bootstrap.api.EventCloudClientFactory;
+import eu.playproject.platform.service.bootstrap.api.GovernanceClient;
 import eu.playproject.platform.service.bootstrap.api.KeyValueBean;
 import eu.playproject.platform.service.bootstrap.api.TopicManager;
 import fr.inria.eventcloud.webservices.api.EventCloudManagementWsApi;
@@ -33,23 +37,24 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 
 	private EventCloudClientFactory eventCloudClientFactory;
 
+	private GovernanceClient governanceClient;
+
 	/*
 	 * Provider is the DSB. subscriber is the EC.
 	 */
-	public List<KeyValueBean> bootstrap(String topicEndpoint,
-			String providerEndpoint, String subscriberEndpoint)
-			throws BootstrapFault {
+	public List<KeyValueBean> bootstrap(String providerEndpoint,
+			String subscriberEndpoint) throws BootstrapFault {
 		logger.info("Init all EC subscribes to DSB");
 
 		List<KeyValueBean> result = new ArrayList<KeyValueBean>();
 
-		List<QName> topics = topicManager.getTopics(topicEndpoint);
+		List<Topic> topics = governanceClient.getTopics();
 
 		if (topics == null || topics.size() == 0) {
 			throw new BootstrapFault("Can not get any topic");
 		}
 
-		for (QName topic : topics) {
+		for (Topic topic : topics) {
 			logger.info("Create stuff for topic " + topic);
 
 			KeyValueBean bean = createResources(topic, providerEndpoint,
@@ -58,7 +63,6 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 				result.add(bean);
 			}
 		}
-
 		return result;
 	}
 
@@ -70,7 +74,7 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 	 * @param subscriberEndpoint
 	 * @return
 	 */
-	private KeyValueBean createResources(QName topic, String providerEndpoint,
+	private KeyValueBean createResources(Topic topic, String providerEndpoint,
 			String subscriberEndpoint) {
 		KeyValueBean kv = new KeyValueBean();
 		kv.setKey(topic.toString());
@@ -78,7 +82,10 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 		EventCloudManagementWsApi client = eventCloudClientFactory
 				.getClient(subscriberEndpoint);
 
-		String stream = StreamHelper.getStreamName(topic);
+		QName topicName = new QName(topic.getNs(), topic.getName(),
+				topic.getPrefix());
+
+		String stream = StreamHelper.getStreamName(topicName);
 		List<String> publishURLs = client.getPublishProxyEndpointUrls(stream);
 
 		logger.info("Got some URLs back from the EC : " + publishURLs);
@@ -97,26 +104,40 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 			// send the subscribe to the event cloud on behalf of the DSB
 			try {
 				logger.info("Subscribe for topic " + topic);
-				kv.setValue("true");
-				String id = topicManager.subscribe(providerEndpoint, topic,
+				String id = topicManager.subscribe(providerEndpoint, topicName,
 						subscriber);
+				kv.setValue("SubscribeID="+id);
+
 			} catch (BootstrapFault e) {
 				e.printStackTrace();
-				kv.setValue("false");
+				kv.setValue("Error : " +e.getMessage());
 			}
 		} else {
 			logger.info("No need to subscribe for the topic " + topic);
-			kv.setValue("false");
+			kv.setValue("NotSubscribed (governance said no...)");
 		}
 
 		return kv;
 	}
 
-	private boolean needsToSubscribe(QName topic) {
-		// FIXME: The filters needs to be set by configuration or by setup
-		// TODO : Use the metadata service
-		return (topic != null && !topic.getLocalPart().toLowerCase()
-				.endsWith("cepresults"));
+	protected boolean needsToSubscribe(Topic topic) {
+		// only subscribe if this is not a topic the DSB needs to subscribe...
+
+		List<Metadata> filter = new ArrayList<Metadata>();
+		Metadata meta = new Metadata();
+		meta.setName("dsbneedstosubscribe");
+		meta.setValue("true");
+		filter.add(meta);
+
+		List<Topic> topics = null;
+		try {
+			topics = this.governanceClient.getTopicsWithMeta(filter);
+		} catch (GovernanceExeption e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		return topics != null && !topics.contains(topic);
 	}
 
 	public void setTopicManager(TopicManager topicManager) {
@@ -126,6 +147,10 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 	public void setEventCloudClientFactory(
 			EventCloudClientFactory eventCloudClientFactory) {
 		this.eventCloudClientFactory = eventCloudClientFactory;
+	}
+
+	public void setGovernanceClient(GovernanceClient governanceClient) {
+		this.governanceClient = governanceClient;
 	}
 
 }

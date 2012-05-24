@@ -31,7 +31,7 @@ public interface BootstrapService {
 	@WebMethod
 	@GET
 	@Path("/boot")
-	List<KeyValueBean> bootstrap(String topicEndpoint, String providerEndpoint,
+	List<KeyValueBean> bootstrap(String providerEndpoint,
 			String subscriberEndpoint) throws BootstrapFault;
 
 }
