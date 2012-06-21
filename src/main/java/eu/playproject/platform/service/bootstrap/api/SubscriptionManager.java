@@ -54,7 +54,7 @@ public interface SubscriptionManager {
 	 * @return the list of subscriptions which has been removed
 	 */
 	@WebMethod
-	List<Subscription> unsubscribe();
+	List<Subscription> unsubscribeAll();
 
 	/**
 	 * Unsubscribe it

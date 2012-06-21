@@ -76,7 +76,7 @@ public class SubscriptionManagerServiceImpl implements
 	 * ()
 	 */
 	@Override
-	public List<Subscription> unsubscribe() {
+	public List<Subscription> unsubscribeAll() {
 		List<Subscription> result = new ArrayList<Subscription>();
 		for (Subscription subscription : subscriptions) {
 			if (this.unsubscribe(subscription)) {
