@@ -1,5 +1,21 @@
 /**
+ *
+ * Copyright (c) 2012, PetalsLink
  * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
+ *
  */
 package eu.playproject.platform.service.bootstrap;
 
@@ -19,7 +35,10 @@ import com.ebmwebsourcing.wsstar.resourceproperties.datatypes.impl.impl.WsrfrpMo
 import com.ebmwebsourcing.wsstar.topics.datatypes.impl.impl.WstopModelFactoryImpl;
 import com.ebmwebsourcing.wsstar.wsnb.services.impl.util.Wsnb4ServUtils;
 
+import eu.playproject.governance.api.bean.Topic;
 import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
+import eu.playproject.platform.service.bootstrap.api.Subscription;
+import eu.playproject.platform.service.bootstrap.api.SubscriptionManager;
 import eu.playproject.platform.service.bootstrap.api.TopicManager;
 
 /**
@@ -41,6 +60,8 @@ public class DSBTopicManager implements TopicManager {
 				new WsrfrpModelFactoryImpl(), new WstopModelFactoryImpl(),
 				new WsnbModelFactoryImpl());
 	}
+	
+	private SubscriptionManager subscriptionManager;
 
 	@Override
 	public String subscribe(String producer, QName topic, String subscriber)
@@ -54,10 +75,28 @@ public class DSBTopicManager implements TopicManager {
 		try {
 			id = client.subscribe(topic, subscriber);
 			logger.info("Subscribed to topic " + topic + " and ID is " + id);
+			
+			Subscription subscription = new Subscription();
+			subscription.setDate(System.currentTimeMillis());
+			subscription.setId(id);
+			subscription.setProvider(producer);
+			subscription.setSubscriber(subscriber);
+			Topic t = new Topic();
+			t.setName(topic.getLocalPart());
+			t.setNs(topic.getNamespaceURI());
+			t.setPrefix(topic.getPrefix());
+			subscription.setTopic(t);
+			
+			this.subscriptionManager.addSubscription(subscription);
+			
 		} catch (NotificationException e) {
 			logger.log(Level.SEVERE, "Problem while subscribing", e);
 			throw new BootstrapFault(e);
 		}
 		return id;
+	}
+	
+	public void setSubscriptionManager(SubscriptionManager subscriptionManager) {
+		this.subscriptionManager = subscriptionManager;
 	}
 }

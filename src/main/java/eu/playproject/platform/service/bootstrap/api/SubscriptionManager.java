@@ -19,16 +19,50 @@
  */
 package eu.playproject.platform.service.bootstrap.api;
 
-import eu.playproject.governance.api.EventGovernance;
-import eu.playproject.governance.api.TopicMetadataService;
+import java.util.List;
+
+import javax.jws.WebMethod;
+import javax.jws.WebService;
 
 /**
  * @author chamerling
  * 
  */
-public interface GovernanceClient extends TopicMetadataService, EventGovernance {
+@WebService
+public interface SubscriptionManager {
 
-	public static String TOPIC_ENDPOINT = "endpoint.topic";
-	public static String META_ENDPOINT = "endpoint.metadata";
+	/**
+	 * Add a subscription. This method does not subscribes, it just cache
+	 * subscription for future use
+	 * 
+	 * @param subscription
+	 */
+	@WebMethod
+	void addSubscription(Subscription subscription);
+
+	/**
+	 * Get all the current subscriptions which have been done by this component
+	 * 
+	 * @return
+	 */
+	@WebMethod
+	List<Subscription> getSubscriptions();
+
+	/**
+	 * Unsubscribe to all the current subscriptions...
+	 * 
+	 * @return the list of subscriptions which has been removed
+	 */
+	@WebMethod
+	List<Subscription> unsubscribe();
+
+	/**
+	 * Unsubscribe it
+	 * 
+	 * @param subscription
+	 * @return
+	 */
+	@WebMethod
+	boolean unsubscribe(Subscription subscription);
 
 }

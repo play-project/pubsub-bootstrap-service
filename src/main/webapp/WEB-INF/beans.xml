@@ -28,9 +28,14 @@
 
 	<bean id="governanceclient"
 		class="eu.playproject.platform.service.bootstrap.GovernanceClientImpl" />
+		
+	<bean id="subscriptionmanager"
+		class="eu.playproject.platform.service.bootstrap.SubscriptionManagerServiceImpl" />
 
 	<bean id="topicmanager"
-		class="eu.playproject.platform.service.bootstrap.DSBTopicManager" />
+		class="eu.playproject.platform.service.bootstrap.DSBTopicManager">
+		<property name="subscriptionManager" ref="subscriptionmanager" />
+	</bean>
 
 	<bean id="eventcloudclientfactory"
 		class="eu.playproject.platform.service.bootstrap.JAXWSEventCloudClientFactory" />
@@ -67,5 +72,8 @@
 
 	<jaxws:endpoint id="ecdsbboostrap" implementor="#ecsubscribestodsbbootstrap"
 		address="/EC2DSBBootstrapService" />
+		
+	<jaxws:endpoint id="subscriptionmanagerservice" implementor="#subscriptionmanager"
+		address="/SubscriptionManagerService" />
 
 </beans>
