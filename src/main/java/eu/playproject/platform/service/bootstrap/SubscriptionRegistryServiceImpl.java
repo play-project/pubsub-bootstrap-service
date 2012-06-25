@@ -26,27 +26,27 @@ import java.util.logging.Logger;
 import eu.playproject.platform.service.bootstrap.api.Subscription;
 
 /**
- * Stores the subscriptions
+ * Stores the subscriptions. This service does not call the subscription services, it just stores subscriptions.
  * 
  * @author chamerling
  * 
  */
-public class SubscriptionManagerServiceImpl implements
-		eu.playproject.platform.service.bootstrap.api.SubscriptionManager {
+public class SubscriptionRegistryServiceImpl implements
+		eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry {
 
 	private static Logger logger = Logger
-			.getLogger(SubscriptionManagerServiceImpl.class.getName());
+			.getLogger(SubscriptionRegistryServiceImpl.class.getName());
 
 	List<Subscription> subscriptions;
 
-	public SubscriptionManagerServiceImpl() {
+	public SubscriptionRegistryServiceImpl() {
 		this.subscriptions = new ArrayList<Subscription>();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see eu.playproject.platform.service.bootstrap.api.SubscriptionManager#
+	 * @see eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry#
 	 * addSubscription
 	 * (eu.playproject.platform.service.bootstrap.api.Subscription)
 	 */
@@ -60,7 +60,7 @@ public class SubscriptionManagerServiceImpl implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see eu.playproject.platform.service.bootstrap.api.SubscriptionManager#
+	 * @see eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry#
 	 * getSubscriptions()
 	 */
 	@Override
@@ -72,14 +72,14 @@ public class SubscriptionManagerServiceImpl implements
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * eu.playproject.platform.service.bootstrap.api.SubscriptionManager#unsubscribe
+	 * eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry#unsubscribe
 	 * ()
 	 */
 	@Override
-	public List<Subscription> unsubscribeAll() {
+	public List<Subscription> removeAll() {
 		List<Subscription> result = new ArrayList<Subscription>();
 		for (Subscription subscription : subscriptions) {
-			if (this.unsubscribe(subscription)) {
+			if (this.remove(subscription)) {
 				result.add(subscription);
 			}
 		}
@@ -87,10 +87,9 @@ public class SubscriptionManagerServiceImpl implements
 	}
 
 	@Override
-	public boolean unsubscribe(Subscription subscription) {
-		logger.info("Unsubscribe from " + subscription);
-		// TODO
-		return false;
+	public boolean remove(Subscription subscription) {
+		logger.info("Remove from " + subscription);
+		return subscriptions.remove(subscription);
 	}
 
 }

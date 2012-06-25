@@ -35,7 +35,7 @@ import eu.playproject.governance.api.GovernanceExeption;
 import eu.playproject.governance.api.bean.Metadata;
 import eu.playproject.governance.api.bean.Topic;
 import eu.playproject.platform.service.bootstrap.api.GovernanceClient;
-import eu.playproject.platform.service.bootstrap.api.KeyValueBean;
+import eu.playproject.platform.service.bootstrap.api.Subscription;
 
 public class CreationTest extends TestCase {
 
@@ -147,18 +147,11 @@ public class CreationTest extends TestCase {
 			}
 		});
 
-		List<KeyValueBean> result = service.bootstrap(ecEndpoint,
+		List<Subscription> result = service.bootstrap(ecEndpoint,
 				subscriberEndpoint);
 
 		System.out.println(result);
-		Assert.assertTrue(result.size() == 2);
-		int subscribed = 0;
-		for (KeyValueBean keyValueBean : result) {
-			// BAD API! need to fix it!!!!
-			if (keyValueBean.getValue().contains(";Subscribed"))
-				subscribed++;
-		}
-		assertEquals(1, subscribed);
+		Assert.assertTrue(result.size() == 1);
 	}
 
 }

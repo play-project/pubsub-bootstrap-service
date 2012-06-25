@@ -17,32 +17,39 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
  *
  */
-package eu.playproject.platform.service.bootstrap.api;
+package eu.playproject.platform.service.bootstrap;
 
-import java.util.List;
-
-import javax.jws.WebMethod;
-import javax.jws.WebService;
+import eu.playproject.platform.service.bootstrap.api.ManagementService;
 
 /**
- * Bootstrap API between notification consumers and providers.
- * 
  * @author chamerling
- * 
+ *
  */
-@WebService
-public interface BootstrapService {
+public class ManagemenntServiceImpl implements ManagementService {
+	
 
-	/**
-	 * Subscribes to a topic on the provider endpoint on behalf of the
-	 * subscriber. It means that when the subscription is done, the subscriber
-	 * will be notified when new messages are published on the topic by the
-	 * provider.
-	 * 
-	 * @return a list of subscriptions
-	 */
-	@WebMethod
-	List<Subscription> bootstrap(String providerEndpoint,
-			String subscriberEndpoint) throws BootstrapFault;
+	@Override
+	public boolean init() throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean clear() throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean subscribeAll() throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean unsubscribeAll() throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

@@ -17,32 +17,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
  *
  */
-package eu.playproject.platform.service.bootstrap.api;
+package eu.playproject.platform.service.bootstrap.api.rest;
 
-import java.util.List;
-
-import javax.jws.WebMethod;
-import javax.jws.WebService;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
- * Bootstrap API between notification consumers and providers.
+ * REST service for the registry
  * 
  * @author chamerling
  * 
  */
-@WebService
-public interface BootstrapService {
+@Path("/registry/")
+public interface SubscriptionRegistryService {
 
-	/**
-	 * Subscribes to a topic on the provider endpoint on behalf of the
-	 * subscriber. It means that when the subscription is done, the subscriber
-	 * will be notified when new messages are published on the topic by the
-	 * provider.
-	 * 
-	 * @return a list of subscriptions
-	 */
-	@WebMethod
-	List<Subscription> bootstrap(String providerEndpoint,
-			String subscriberEndpoint) throws BootstrapFault;
+	@GET
+	@Path("subscriptions")
+	@Produces(MediaType.APPLICATION_JSON)
+	Response all();
 
 }

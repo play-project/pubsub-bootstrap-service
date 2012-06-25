@@ -19,12 +19,15 @@
  */
 package eu.playproject.platform.service.bootstrap.api;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import eu.playproject.governance.api.bean.Topic;
 
 /**
  * @author chamerling
  * 
  */
+@XmlRootElement
 public class Subscription {
 
 	String id;
@@ -47,6 +50,7 @@ public class Subscription {
 		this.subscriber = subscriber;
 		this.provider = provider;
 		this.topic = topic;
+		this.date = date;
 	}
 
 	/**

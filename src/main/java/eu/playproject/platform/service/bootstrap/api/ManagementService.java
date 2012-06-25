@@ -19,38 +19,62 @@
  */
 package eu.playproject.platform.service.bootstrap.api;
 
+import javax.jws.WebMethod;
+import javax.jws.WebService;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
 /**
+ * 
  * @author chamerling
  * 
  */
-public class KeyValueBean {
+@Path("/manage/")
+@WebService
+public interface ManagementService {
 
-	private String key;
+	/**
+	 * Initialize the service
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@GET
+	@Path("init")
+	@WebMethod
+	boolean init() throws Exception;
 
-	private String value;
+	/**
+	 * Clear all
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@GET
+	@Path("clear")
+	@WebMethod
+	boolean clear() throws Exception;
 
-	public KeyValueBean() {
-	}
+	/**
+	 * Creates all the subscriptions
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@GET
+	@Path("subscribe")
+	@WebMethod
+	boolean subscribeAll() throws Exception;
 
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-	@Override
-	public String toString() {
-		return "KeyValueBean [key=" + key + ", value=" + value + "]";
-	}
+	/**
+	 * Unsubscribe all actors
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	@GET
+	@Path("unsubscribe")
+	@WebMethod
+	boolean unsubscribeAll() throws Exception;
 
 }

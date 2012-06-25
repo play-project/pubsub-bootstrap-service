@@ -19,36 +19,39 @@
  */
 package eu.playproject.platform.service.bootstrap.api;
 
-import javax.xml.namespace.QName;
+import java.util.List;
+
+import javax.jws.WebMethod;
+import javax.jws.WebService;
 
 /**
  * @author chamerling
- * 
+ *
  */
-public interface TopicManager {
-
+@WebService
+public interface LogService {
+	
 	/**
-	 * Subscribe to a notification producer on behalf of the subscriber
+	 * Log a new message
 	 * 
-	 * @param producer
-	 *            to send the subscribe to
-	 * @param topic
-	 *            the topic to subscribe to
-	 * @param subscriber
-	 *            who is subscribing ie who will receive notifications?
-	 * 
-	 * @return the subscription object if we subscribed or null if not
-	 * 
-	 * @throws BootstrapFault
+	 * @param message
 	 */
-	Subscription subscribe(String producer, QName topic, String subscriber)
-			throws BootstrapFault;
-
+	@WebMethod
+	void log(String message);
+	
+	void log(String format, Object... values);
+	
 	/**
-	 * Unsubscribe from the producer defined in the subscription. All the needed
-	 * information are in the subscription. Up to the implementation to get the
-	 * right one. For WSN, subscription ID and provider should be enough...
+	 * Get all the logs
+	 * @return
 	 */
-	void unsubscribe(Subscription subscription) throws BootstrapFault;
+	@WebMethod
+	List<String> logs();
+	
+	/**
+	 * Clear the logs
+	 */
+	@WebMethod
+	void clear();
 
 }

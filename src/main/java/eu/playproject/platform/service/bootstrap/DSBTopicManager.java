@@ -25,7 +25,9 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 
 import org.petalslink.dsb.notification.client.http.simple.HTTPProducerClient;
+import org.petalslink.dsb.notification.client.http.simple.HTTPSubscriptionManagerClient;
 import org.petalslink.dsb.notification.commons.NotificationException;
+import org.springframework.beans.factory.access.BootstrapException;
 
 import com.ebmwebsourcing.wsstar.basefaults.datatypes.impl.impl.WsrfbfModelFactoryImpl;
 import com.ebmwebsourcing.wsstar.basenotification.datatypes.impl.impl.WsnbModelFactoryImpl;
@@ -38,12 +40,10 @@ import com.ebmwebsourcing.wsstar.wsnb.services.impl.util.Wsnb4ServUtils;
 import eu.playproject.governance.api.bean.Topic;
 import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
 import eu.playproject.platform.service.bootstrap.api.Subscription;
-import eu.playproject.platform.service.bootstrap.api.SubscriptionManager;
+import eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry;
 import eu.playproject.platform.service.bootstrap.api.TopicManager;
 
 /**
- * Get the topics from a DSB instance. A better version will be to get them from
- * the governance directly.
  * 
  * @author chamerling
  * 
@@ -60,23 +60,23 @@ public class DSBTopicManager implements TopicManager {
 				new WsrfrpModelFactoryImpl(), new WstopModelFactoryImpl(),
 				new WsnbModelFactoryImpl());
 	}
-	
-	private SubscriptionManager subscriptionManager;
+
+	private SubscriptionRegistry subscriptionRegistry;
 
 	@Override
-	public String subscribe(String producer, QName topic, String subscriber)
-			throws BootstrapFault {
-		String id = null;
+	public Subscription subscribe(String producer, QName topic,
+			String subscriber) throws BootstrapFault {
+		Subscription subscription = null;
 
 		logger.info("Subscribe to topic '" + topic + "' on producer '"
 				+ producer + "' for subscriber '" + subscriber + "'");
 
 		HTTPProducerClient client = new HTTPProducerClient(producer);
 		try {
-			id = client.subscribe(topic, subscriber);
+			String id = client.subscribe(topic, subscriber);
 			logger.info("Subscribed to topic " + topic + " and ID is " + id);
-			
-			Subscription subscription = new Subscription();
+
+			subscription = new Subscription();
 			subscription.setDate(System.currentTimeMillis());
 			subscription.setId(id);
 			subscription.setProvider(producer);
@@ -86,17 +86,44 @@ public class DSBTopicManager implements TopicManager {
 			t.setNs(topic.getNamespaceURI());
 			t.setPrefix(topic.getPrefix());
 			subscription.setTopic(t);
-			
-			this.subscriptionManager.addSubscription(subscription);
-			
+
+			this.subscriptionRegistry.addSubscription(subscription);
+
 		} catch (NotificationException e) {
 			logger.log(Level.SEVERE, "Problem while subscribing", e);
 			throw new BootstrapFault(e);
 		}
-		return id;
+		return subscription;
 	}
-	
-	public void setSubscriptionManager(SubscriptionManager subscriptionManager) {
-		this.subscriptionManager = subscriptionManager;
+
+	@Override
+	public void unsubscribe(Subscription subscription) throws BootstrapFault {
+		logger.fine("Unsubscribe from " + subscription);
+		if (subscription == null) {
+			throw new BootstrapFault("Bad parameters, null subscription");
+		}
+
+		if (subscription.getProvider() == null || subscription.getId() == null) {
+			throw new BootstrapFault(
+					"Bad parameters, null provider or subscription id");
+		}
+
+		HTTPSubscriptionManagerClient client = new HTTPSubscriptionManagerClient(
+				subscription.getProvider());
+		try {
+			boolean result = client.unsubscribe(subscription.getId());
+			if (result) {
+				this.subscriptionRegistry.remove(subscription);
+			}
+		} catch (NotificationException e) {
+			e.printStackTrace();
+		}
+
+		throw new BootstrapException("Not implemented");
+	}
+
+	public void setSubscriptionRegistry(
+			SubscriptionRegistry subscriptionRegistry) {
+		this.subscriptionRegistry = subscriptionRegistry;
 	}
 }

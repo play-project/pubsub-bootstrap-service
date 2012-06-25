@@ -17,16 +17,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
  *
  */
-package eu.playproject.platform.service.bootstrap;
+package eu.playproject.platform.service.bootstrap.rest;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.ws.rs.core.Response;
+
+import eu.playproject.platform.service.bootstrap.MemoryLogServiceImpl;
 import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
 import eu.playproject.platform.service.bootstrap.api.BootstrapService;
-import eu.playproject.platform.service.bootstrap.api.InitService;
-import eu.playproject.platform.service.bootstrap.api.KeyValueBean;
+import eu.playproject.platform.service.bootstrap.api.Subscription;
+import eu.playproject.platform.service.bootstrap.api.rest.InitService;
+import eu.playproject.platform.service.bootstrap.api.rest.beans.Subscriptions;
 
 /**
  * Main init service which gets default values from configuration and create all
@@ -37,6 +44,9 @@ import eu.playproject.platform.service.bootstrap.api.KeyValueBean;
  */
 public class InitServiceImpl implements InitService {
 
+	protected static Logger logger = Logger.getLogger(InitServiceImpl.class
+			.getName());
+
 	private BootstrapService dsbSubscribesBootstrapService;
 
 	private BootstrapService ecSubscribesBootstrapService;
@@ -46,50 +56,68 @@ public class InitServiceImpl implements InitService {
 	String ecsubscribeconfig = "https://raw.github.com/play-project/play-configfiles/master/platformservices/pubsubbootstrap/ecsubscribestodsb.properties";
 
 	@Override
-	public boolean go() {
-		System.out.println("### DSB subscribes to EC...");
-		dsbSubscribes2EC();
-
-		System.out.println("### EC subscribes to DSB...");
-		ecSubscribes2DSB();
-
-		return true;
+	public Response go() {
+		MemoryLogServiceImpl.get().log("Call to bootstrap service");
+		List<Subscription> result = new ArrayList<Subscription>();
+		result.addAll(dsbSubscribes2EC());
+		result.addAll(ecSubscribes2DSB());
+		return Response.ok(new Subscriptions(result)).build();
 	}
 
-	protected boolean dsbSubscribes2EC() {
+	@Override
+	public Response ecToDSB() {
+		return Response.ok(new Subscriptions(ecSubscribes2DSB())).build();
+	}
+
+	@Override
+	public Response dsbToEC() {
+		return Response.ok(new Subscriptions(dsbSubscribes2EC())).build();
+	}
+
+	protected List<Subscription> dsbSubscribes2EC() {
+		MemoryLogServiceImpl.get().log("DSB subscribes to EC");
+
+		List<Subscription> result = new ArrayList<Subscription>();
 		// get the properties from remote...
 		Properties props = new Properties();
 		try {
 			URL url = new URL(dsbsubscribeconfig);
 			props.load(url.openStream());
 		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
+			logger.warning(e.getMessage());
+			if (logger.isLoggable(Level.FINE)) {
+				e.printStackTrace();
+			}
+			return result;
 		}
 
 		String eventCloudEndpoint = props.getProperty("endpoint.eventcloud");
 		String subscriberEndpoint = props.getProperty("endpoint.subscriber");
 
-		System.out.printf("Initializing with ec %s and subscriber %s",
-				eventCloudEndpoint, subscriberEndpoint);
+		logger.info(String.format("Initializing with ec %s and subscriber %s",
+				eventCloudEndpoint, subscriberEndpoint));
 
 		try {
-			List<KeyValueBean> result = dsbSubscribesBootstrapService
-					.bootstrap(eventCloudEndpoint, subscriberEndpoint);
+			result.addAll(dsbSubscribesBootstrapService.bootstrap(
+					eventCloudEndpoint, subscriberEndpoint));
 
-			for (KeyValueBean bean : result) {
-				System.out.println(bean);
+			if (logger.isLoggable(Level.FINE)) {
+				for (Subscription s : result) {
+					logger.fine("Subscribed : " + s);
+				}
 			}
-
 		} catch (BootstrapFault e) {
 			e.printStackTrace();
-			return false;
 		}
 
-		return true;
+		return result;
 	}
 
-	protected boolean ecSubscribes2DSB() {
+	protected List<Subscription> ecSubscribes2DSB() {
+		MemoryLogServiceImpl.get().log("EC subscribes to DSB");
+
+		List<Subscription> result = new ArrayList<Subscription>();
+
 		// get the properties from remote...
 		Properties props = new Properties();
 		try {
@@ -97,29 +125,29 @@ public class InitServiceImpl implements InitService {
 			props.load(url.openStream());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			return result;
 		}
 
 		String eventCloudEndpoint = props.getProperty("endpoint.eventcloud");
 		String dsbEndpoint = props.getProperty("endpoint.dsb");
 
-		System.out.printf("Initializing with ec %s and dsb %s",
-				eventCloudEndpoint, dsbEndpoint);
+		logger.info(String.format("Initializing with ec %s and dsb %s",
+				eventCloudEndpoint, dsbEndpoint));
 
 		try {
-			List<KeyValueBean> result = ecSubscribesBootstrapService.bootstrap(
-					dsbEndpoint, eventCloudEndpoint);
+			result.addAll(ecSubscribesBootstrapService.bootstrap(dsbEndpoint,
+					eventCloudEndpoint));
 
-			for (KeyValueBean bean : result) {
-				System.out.println(bean);
+			if (logger.isLoggable(Level.FINE)) {
+				for (Subscription s : result) {
+					logger.fine("Subscribed : " + s);
+				}
 			}
 
 		} catch (BootstrapFault e) {
 			e.printStackTrace();
-			return false;
 		}
-
-		return true;
+		return result;
 	}
 
 	public void setDsbSubscribesBootstrapService(

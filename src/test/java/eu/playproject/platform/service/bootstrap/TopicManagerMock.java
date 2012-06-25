@@ -21,18 +21,32 @@ package eu.playproject.platform.service.bootstrap;
 
 import javax.xml.namespace.QName;
 
+import eu.playproject.governance.api.bean.Topic;
 import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
+import eu.playproject.platform.service.bootstrap.api.Subscription;
 import eu.playproject.platform.service.bootstrap.api.TopicManager;
 
 public class TopicManagerMock implements TopicManager {
 
 	@Override
-	public String subscribe(String producer, QName topic, String subscriber)
-			throws BootstrapFault {
+	public Subscription subscribe(String producer, QName topic,
+			String subscriber) throws BootstrapFault {
 		System.out.println("Subscribe to topic " + topic + " on " + producer
 				+ " for subscriber " + subscriber);
+
+		Topic t = new Topic();
+		t.setName(topic.getLocalPart());
+		t.setNs(topic.getNamespaceURI());
+		t.setPrefix(topic.getPrefix());
 		
-		return "1234565689";
+		return new Subscription("1234565689", subscriber, producer, t,
+				System.currentTimeMillis());
+	}
+	
+	@Override
+	public void unsubscribe(Subscription subscription) throws BootstrapFault {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -26,15 +26,19 @@
 		</cxf:features>
 	</cxf:bus>
 
+	<bean id="jsonprovider" class="org.apache.cxf.jaxrs.provider.JSONProvider">
+		<property name="serializeAsArray" value="true" />
+	</bean>
+
 	<bean id="governanceclient"
 		class="eu.playproject.platform.service.bootstrap.GovernanceClientImpl" />
-		
-	<bean id="subscriptionmanager"
-		class="eu.playproject.platform.service.bootstrap.SubscriptionManagerServiceImpl" />
+
+	<bean id="subscriptionregistry"
+		class="eu.playproject.platform.service.bootstrap.SubscriptionRegistryServiceImpl" />
 
 	<bean id="topicmanager"
 		class="eu.playproject.platform.service.bootstrap.DSBTopicManager">
-		<property name="subscriptionManager" ref="subscriptionmanager" />
+		<property name="subscriptionRegistry" ref="subscriptionregistry" />
 	</bean>
 
 	<bean id="eventcloudclientfactory"
@@ -45,6 +49,7 @@
 		<property name="topicManager" ref="topicmanager" />
 		<property name="eventCloudClientFactory" ref="eventcloudclientfactory" />
 		<property name="governanceClient" ref="governanceclient" />
+		<property name="subscriptionRegistry" ref="subscriptionregistry" />
 	</bean>
 
 	<bean id="ecsubscribestodsbbootstrap"
@@ -52,28 +57,48 @@
 		<property name="topicManager" ref="topicmanager" />
 		<property name="eventCloudClientFactory" ref="eventcloudclientfactory" />
 		<property name="governanceClient" ref="governanceclient" />
+		<property name="subscriptionRegistry" ref="subscriptionregistry" />
 	</bean>
 
-	<!-- REST init service -->
+	<bean id="logservice"
+		class="eu.playproject.platform.service.bootstrap.MemoryLogServiceImpl" />
+
+	<!-- REST services -->
 	<bean id="restinit"
-		class="eu.playproject.platform.service.bootstrap.InitServiceImpl">
+		class="eu.playproject.platform.service.bootstrap.rest.InitServiceImpl">
 		<property name="dsbSubscribesBootstrapService" ref="dsbsubscribestoecbootstrap" />
 		<property name="ecSubscribesBootstrapService" ref="ecsubscribestodsbbootstrap" />
 	</bean>
 
+	<bean id="restlog"
+		class="eu.playproject.platform.service.bootstrap.rest.LogServiceImpl" />
+
+	<bean id="restsubscriptionregistry" class="eu.playproject.platform.service.bootstrap.rest.SubscriptionRegistryServiceImpl">
+		<property name="subscriptionRegistry" ref="subscriptionregistry" />
+	</bean>
+
 	<jaxrs:server id="restContainer" address="/rest/">
 		<jaxrs:serviceBeans>
+			<ref bean="restsubscriptionregistry" />
+			<ref bean="restlog" />
 			<ref bean="restinit" />
 		</jaxrs:serviceBeans>
+		<jaxrs:providers>
+			<ref bean="jsonprovider" />
+		</jaxrs:providers>
 	</jaxrs:server>
 
+	<!-- JAXWS Services -->
 	<jaxws:endpoint id="dsbecboostrap" implementor="#dsbsubscribestoecbootstrap"
 		address="/DSB2ECBootstrapService" />
 
 	<jaxws:endpoint id="ecdsbboostrap" implementor="#ecsubscribestodsbbootstrap"
 		address="/EC2DSBBootstrapService" />
-		
-	<jaxws:endpoint id="subscriptionmanagerservice" implementor="#subscriptionmanager"
-		address="/SubscriptionManagerService" />
+
+	<jaxws:endpoint id="subscriptionregistryservice"
+		implementor="#subscriptionregistry" address="/SubscriptionRegistryService" />
+
+	<jaxws:endpoint id="logservicendpoint" implementor="#logservice"
+		address="/LogService" />
 
 </beans>

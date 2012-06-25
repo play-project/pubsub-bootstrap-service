@@ -17,19 +17,53 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
  *
  */
-package eu.playproject.platform.service.bootstrap.api;
+package eu.playproject.platform.service.bootstrap.api.rest;
+
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * @author chamerling
- *
+ * 
  */
-@Path("/init/")
-public interface InitService {
-	
-	@GET
-	boolean go();
+@Path("/logs/")
+public interface LogService {
 
+	@GET
+	@Path("all")
+	@Produces(MediaType.APPLICATION_JSON)
+	Response logs();
+
+	@GET
+	@Path("clear")
+	@Produces(MediaType.APPLICATION_JSON)
+	Response clear();
+
+	@XmlRootElement(name = "logs")
+	public class Logs {
+		@XmlElement(name = "log")
+		private List<String> logs;
+		
+		public Logs() {
+		}
+
+		public Logs(List<String> logs) {
+			this.logs = logs;
+		}
+
+		public List<String> get() {
+			return logs;
+		}
+
+		public void set(List<String> c) {
+			this.logs = c;
+		}
+	}
 }

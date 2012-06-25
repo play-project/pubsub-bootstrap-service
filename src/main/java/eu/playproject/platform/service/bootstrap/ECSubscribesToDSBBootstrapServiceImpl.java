@@ -20,6 +20,7 @@
 package eu.playproject.platform.service.bootstrap;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -33,7 +34,9 @@ import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
 import eu.playproject.platform.service.bootstrap.api.BootstrapService;
 import eu.playproject.platform.service.bootstrap.api.EventCloudClientFactory;
 import eu.playproject.platform.service.bootstrap.api.GovernanceClient;
-import eu.playproject.platform.service.bootstrap.api.KeyValueBean;
+import eu.playproject.platform.service.bootstrap.api.LogService;
+import eu.playproject.platform.service.bootstrap.api.Subscription;
+import eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry;
 import eu.playproject.platform.service.bootstrap.api.TopicManager;
 import fr.inria.eventcloud.webservices.api.EventCloudManagementWsApi;
 
@@ -54,15 +57,17 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 	private EventCloudClientFactory eventCloudClientFactory;
 
 	private GovernanceClient governanceClient;
+	
+	private SubscriptionRegistry subscriptionRegistry;
 
 	/*
 	 * Provider is the DSB. subscriber is the EC.
 	 */
-	public List<KeyValueBean> bootstrap(String providerEndpoint,
+	public List<Subscription> bootstrap(String providerEndpoint,
 			String subscriberEndpoint) throws BootstrapFault {
 		logger.info("Init all EC subscribes to DSB");
 
-		List<KeyValueBean> result = new ArrayList<KeyValueBean>();
+		List<Subscription> result = new ArrayList<Subscription>();
 
 		List<Topic> topics = governanceClient.getTopics();
 
@@ -73,7 +78,7 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 		for (Topic topic : topics) {
 			logger.info("Create stuff for topic " + topic);
 
-			KeyValueBean bean = createResources(topic, providerEndpoint,
+			Subscription bean = createResources(topic, providerEndpoint,
 					subscriberEndpoint);
 			if (bean != null) {
 				result.add(bean);
@@ -90,10 +95,12 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 	 * @param subscriberEndpoint
 	 * @return
 	 */
-	private KeyValueBean createResources(Topic topic, String providerEndpoint,
+	private Subscription createResources(Topic topic, String providerEndpoint,
 			String subscriberEndpoint) {
-		KeyValueBean kv = new KeyValueBean();
-		kv.setKey(topic.toString());
+		
+		LogService log = MemoryLogServiceImpl.get();
+
+		Subscription result = null;
 
 		EventCloudManagementWsApi client = eventCloudClientFactory
 				.getClient(subscriberEndpoint);
@@ -110,30 +117,36 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 				.get(0) : null;
 
 		if (subscriber == null) {
+			log.log("Can not find any valid endpoint from EC for stream %s", stream);
 			logger.info("Can not get any valid EC endpoint");
 			return null;
 		}
 
 		logger.info("Let's use the EC endpoint at : " + subscriber);
+		
+		// check if we already subscribed...
+		if (alreadySubscribed(topic, subscriber, providerEndpoint)) {
+			log.log("DSB already subscribed to EC for topic %s", topic);
+			logger.info(String.format("EC at %s already subscribed to topic %s", topic));
+			return result;
+		}
 
 		if (needsToSubscribe(topic)) {
 			// send the subscribe to the event cloud on behalf of the DSB
 			try {
 				logger.info("Subscribe for topic " + topic);
-				String id = topicManager.subscribe(providerEndpoint, topicName,
+				result = topicManager.subscribe(providerEndpoint, topicName,
 						subscriber);
-				kv.setValue("SubscribeID="+id);
-
+				log.log("EC subscribed to DSB : " + result);
 			} catch (BootstrapFault e) {
 				e.printStackTrace();
-				kv.setValue("Error : " +e.getMessage());
 			}
 		} else {
-			logger.info("No need to subscribe for the topic " + topic);
-			kv.setValue("NotSubscribed (governance said no...)");
+			log.log("Do not need to subscribe EC->DSB for stream %s", stream);
+			logger.info("No need to subscribe EC->DSB for the topic " + topic);
 		}
 
-		return kv;
+		return result;
 	}
 
 	protected boolean needsToSubscribe(Topic topic) {
@@ -155,6 +168,31 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 
 		return topics != null && !topics.contains(topic);
 	}
+	
+	/**
+	 * Event cloud is the subscriber, dsb is the provider.
+	 * 
+	 * @param topic
+	 * @param eventCloudEndpoint
+	 * @param dsbEndpoint
+	 * @return
+	 */
+	protected boolean alreadySubscribed(Topic topic, String eventCloudEndpoint,
+			String dsbEndpoint) {
+
+		List<Subscription> subscriptions = this.subscriptionRegistry
+				.getSubscriptions();
+
+		Iterator<Subscription> iter = subscriptions.iterator();
+		boolean found = false;
+		while (iter.hasNext() && !found) {
+			Subscription subscription = iter.next();
+			found = subscription.getTopic().equals(topic)
+					&& subscription.getSubscriber().equals(eventCloudEndpoint);
+		}
+
+		return found;
+	}
 
 	public void setTopicManager(TopicManager topicManager) {
 		this.topicManager = topicManager;
@@ -167,6 +205,11 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 
 	public void setGovernanceClient(GovernanceClient governanceClient) {
 		this.governanceClient = governanceClient;
+	}
+	
+	public void setSubscriptionRegistry(
+			SubscriptionRegistry subscriptionRegistry) {
+		this.subscriptionRegistry = subscriptionRegistry;
 	}
 
 }

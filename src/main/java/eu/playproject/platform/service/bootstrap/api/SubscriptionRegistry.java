@@ -23,13 +23,17 @@ import java.util.List;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 
 /**
+ * A simple subscription registru
+ * 
  * @author chamerling
  * 
  */
 @WebService
-public interface SubscriptionManager {
+public interface SubscriptionRegistry {
 
 	/**
 	 * Add a subscription. This method does not subscribes, it just cache
@@ -54,15 +58,15 @@ public interface SubscriptionManager {
 	 * @return the list of subscriptions which has been removed
 	 */
 	@WebMethod
-	List<Subscription> unsubscribeAll();
+	List<Subscription> removeAll();
 
 	/**
-	 * Unsubscribe it
+	 * Remove a subscription
 	 * 
 	 * @param subscription
 	 * @return
 	 */
 	@WebMethod
-	boolean unsubscribe(Subscription subscription);
+	boolean remove(Subscription subscription);
 
 }

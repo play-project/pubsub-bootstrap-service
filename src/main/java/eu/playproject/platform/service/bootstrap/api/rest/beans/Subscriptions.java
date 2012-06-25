@@ -17,32 +17,39 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
  *
  */
-package eu.playproject.platform.service.bootstrap.api;
+package eu.playproject.platform.service.bootstrap.api.rest.beans;
 
 import java.util.List;
 
-import javax.jws.WebMethod;
-import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import eu.playproject.platform.service.bootstrap.api.Subscription;
 
 /**
- * Bootstrap API between notification consumers and providers.
+ * Used to get subscriptions list for REST services without any additional
+ * factory, writer...
  * 
  * @author chamerling
  * 
  */
-@WebService
-public interface BootstrapService {
+@XmlRootElement(name = "subscriptions")
+public class Subscriptions {
+	@XmlElement(name = "subscription")
+	private List<Subscription> s;
 
-	/**
-	 * Subscribes to a topic on the provider endpoint on behalf of the
-	 * subscriber. It means that when the subscription is done, the subscriber
-	 * will be notified when new messages are published on the topic by the
-	 * provider.
-	 * 
-	 * @return a list of subscriptions
-	 */
-	@WebMethod
-	List<Subscription> bootstrap(String providerEndpoint,
-			String subscriberEndpoint) throws BootstrapFault;
+	public Subscriptions() {
+	}
 
+	public Subscriptions(List<Subscription> s) {
+		this.s = s;
+	}
+
+	public List<Subscription> get() {
+		return s;
+	}
+
+	public void set(List<Subscription> c) {
+		this.s = c;
+	}
 }

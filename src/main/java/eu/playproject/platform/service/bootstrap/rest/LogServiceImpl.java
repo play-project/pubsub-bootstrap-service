@@ -17,32 +17,39 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
  *
  */
-package eu.playproject.platform.service.bootstrap.api;
+package eu.playproject.platform.service.bootstrap.rest;
 
-import java.util.List;
+import javax.ws.rs.core.Response;
 
-import javax.jws.WebMethod;
-import javax.jws.WebService;
+import eu.playproject.platform.service.bootstrap.MemoryLogServiceImpl;
+import eu.playproject.platform.service.bootstrap.api.rest.LogService;
 
 /**
- * Bootstrap API between notification consumers and providers.
- * 
  * @author chamerling
  * 
  */
-@WebService
-public interface BootstrapService {
+public class LogServiceImpl implements LogService {
 
-	/**
-	 * Subscribes to a topic on the provider endpoint on behalf of the
-	 * subscriber. It means that when the subscription is done, the subscriber
-	 * will be notified when new messages are published on the topic by the
-	 * provider.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return a list of subscriptions
+	 * @see eu.playproject.platform.service.bootstrap.api.rest.LogService#logs()
 	 */
-	@WebMethod
-	List<Subscription> bootstrap(String providerEndpoint,
-			String subscriberEndpoint) throws BootstrapFault;
+	@Override
+	public Response logs() {
+		return Response.ok(new Logs(MemoryLogServiceImpl.get().logs())).build();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * eu.playproject.platform.service.bootstrap.api.rest.LogService#clear()
+	 */
+	@Override
+	public Response clear() {
+		MemoryLogServiceImpl.get().clear();
+		return Response.ok(new Boolean(true)).build();
+	}
 
 }
