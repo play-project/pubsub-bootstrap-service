@@ -66,6 +66,7 @@ public class CreationTest extends TestCase {
 		service.setEventCloudClientFactory(new EventCloudClientFactoryMock(
 				ecEndpoint));
 		service.setTopicManager(new TopicManagerMock());
+		service.setSubscriptionRegistry(new SubscriptionRegistryServiceImpl());
 		service.setGovernanceClient(new GovernanceClient() {
 
 			@Override
