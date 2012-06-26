@@ -34,16 +34,16 @@ public class SubscriptionRegistryServiceImpl implements
 
 	SubscriptionRegistry subscriptionRegistry;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see eu.playproject.platform.service.bootstrap.api.rest.
-	 * SubscriptionRegistryService#all()
-	 */
 	@Override
 	public Response all() {
 		return Response.ok(
 				new Subscriptions(subscriptionRegistry.getSubscriptions()))
+				.build();
+	}
+
+	@Override
+	public Response clear() {
+		return Response.ok(new Subscriptions(subscriptionRegistry.removeAll()))
 				.build();
 	}
 

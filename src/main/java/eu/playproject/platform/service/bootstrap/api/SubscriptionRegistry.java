@@ -69,4 +69,24 @@ public interface SubscriptionRegistry {
 	@WebMethod
 	boolean remove(Subscription subscription);
 
+	/**
+	 * Remove all the subscriptions from the registry where the provider is
+	 * equal to the input one.
+	 * 
+	 * @param provider
+	 * @return the list of removed subscriptions
+	 */
+	@WebMethod
+	List<Subscription> removeAllFromProvider(String provider);
+
+	/**
+	 * Remove all the subscriptions where the consumer if equal to the input one
+	 * 
+	 * @param provider
+	 * @return
+	 */
+	@WebMethod
+	List<Subscription> removeAllFromConsumer(String provider);
+
+
 }

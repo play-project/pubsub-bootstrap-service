@@ -39,4 +39,9 @@ public interface SubscriptionRegistryService {
 	@Produces(MediaType.APPLICATION_JSON)
 	Response all();
 
+	@GET
+	@Path("clear")
+	@Produces(MediaType.APPLICATION_JSON)
+	Response clear();
+
 }

@@ -20,13 +20,15 @@
 package eu.playproject.platform.service.bootstrap;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
 import eu.playproject.platform.service.bootstrap.api.Subscription;
 
 /**
- * Stores the subscriptions. This service does not call the subscription services, it just stores subscriptions.
+ * Stores the subscriptions. This service does not call the subscription
+ * services, it just stores subscriptions.
  * 
  * @author chamerling
  * 
@@ -71,16 +73,18 @@ public class SubscriptionRegistryServiceImpl implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry#unsubscribe
-	 * ()
+	 * @see eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry#
+	 * unsubscribe ()
 	 */
 	@Override
 	public List<Subscription> removeAll() {
 		List<Subscription> result = new ArrayList<Subscription>();
-		for (Subscription subscription : subscriptions) {
-			if (this.remove(subscription)) {
-				result.add(subscription);
+		Iterator<Subscription> it = this.subscriptions.iterator();
+		
+		while (it.hasNext()) {
+			Subscription s = it.next();
+			if (subscriptions.remove(s)) {
+				result.add(s);
 			}
 		}
 		return result;
@@ -90,6 +94,48 @@ public class SubscriptionRegistryServiceImpl implements
 	public boolean remove(Subscription subscription) {
 		logger.info("Remove from " + subscription);
 		return subscriptions.remove(subscription);
+	}
+
+	@Override
+	public List<Subscription> removeAllFromConsumer(String consumer) {
+		logger.info("Remove from consumer " + consumer);
+
+		List<Subscription> result = new ArrayList<Subscription>();
+
+		Iterator<Subscription> iter = this.subscriptions.iterator();
+		while (iter.hasNext()) {
+			Subscription subscription = iter.next();
+
+			if (subscription.getSubscriber() != null
+					&& subscription.getSubscriber().equals(consumer)) {
+				boolean b = this.subscriptions.remove(subscription);
+				if (b) {
+					result.add(subscription);
+				}
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public List<Subscription> removeAllFromProvider(String provider) {
+		logger.info("Remove from provider " + provider);
+
+		List<Subscription> result = new ArrayList<Subscription>();
+
+		Iterator<Subscription> iter = this.subscriptions.iterator();
+		while (iter.hasNext()) {
+			Subscription subscription = iter.next();
+
+			if (subscription.getSubscriber() != null
+					&& subscription.getProvider().equals(provider)) {
+				boolean b = this.subscriptions.remove(subscription);
+				if (b) {
+					result.add(subscription);
+				}
+			}
+		}
+		return result;
 	}
 
 }
