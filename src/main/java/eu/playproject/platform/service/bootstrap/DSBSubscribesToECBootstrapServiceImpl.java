@@ -110,13 +110,6 @@ public class DSBSubscribesToECBootstrapServiceImpl implements BootstrapService {
 
 		logger.info("Let's do it for topic " + topic);
 
-		// check if we already subscribed...
-		if (alreadySubscribed(topic, eventCloudEndpoint, subscriberEndpoint)) {
-			log.log("DSB already subscribed to EC for topic %s", topic);
-			logger.info(String.format("Already subscribed to topic %s", topic));
-			return result;
-		}
-
 		EventCloudManagementWsApi client = eventCloudClientFactory
 				.getClient(eventCloudEndpoint);
 
@@ -139,24 +132,31 @@ public class DSBSubscribesToECBootstrapServiceImpl implements BootstrapService {
 					streamName);
 		}
 
-		// in all the cases, subscribe to the eventcloud...
+		// check if it is necessary to subscribe to the eventcloud...
 		if (needsToSubscribe(topic)) {
-			// let's subscribe on behalf of the DSB if it is a topic for
-			// complex events
-			// let's get the subscribe proxy endpoint
-			List<String> endpoints = client
-					.getSubscribeProxyEndpointUrls(streamName);
-			if (endpoints == null || endpoints.size() == 0) {
-				log.log("Can not find any subscribe endpoint in the EC for stream %s",
-						streamName);
-			} else {
-				log.log("Let's subscribe to eventcloud for stream %s",
-						streamName);
+		    // check if we already subscribed...
+	        if (alreadySubscribed(topic, eventCloudEndpoint, subscriberEndpoint)) {
+	            log.log("DSB already subscribed to EC for topic %s", topic);
+	            logger.info(String.format("Already subscribed to topic %s", topic));
+	            return result;
+	        } else {
+	            // let's subscribe on behalf of the DSB if it is a topic for
+	            // complex events
+	            // let's get the subscribe proxy endpoint
+	            List<String> endpoints = client
+	                    .getSubscribeProxyEndpointUrls(streamName);
+	            if (endpoints == null || endpoints.size() == 0) {
+	                log.log("Can not find any subscribe endpoint in the EC for stream %s",
+	                        streamName);
+	            } else {
+	                log.log("Let's subscribe to eventcloud for stream %s",
+	                        streamName);
 
-				result = topicManager.subscribe(endpoints.get(0), topicName,
-						subscriberEndpoint);
-				log.log("DSB subscribed to EC : " + result);
-			}
+	                result = topicManager.subscribe(endpoints.get(0), topicName,
+	                        subscriberEndpoint);
+	                log.log("DSB subscribed to EC : " + result);
+	            }
+	        }
 		} else {
 			log.log("Do not need to subscribe to eventcloud for stream %s",
 					streamName);
