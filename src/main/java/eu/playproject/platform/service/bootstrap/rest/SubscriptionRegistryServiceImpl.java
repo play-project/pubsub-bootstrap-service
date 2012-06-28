@@ -47,6 +47,20 @@ public class SubscriptionRegistryServiceImpl implements
 				.build();
 	}
 
+	@Override
+	public Response clearAllFromSubscriber(String url) {
+		return Response.ok(
+				new Subscriptions(subscriptionRegistry
+						.removeAllFromConsumer(url))).build();
+	}
+
+	@Override
+	public Response clearAllFromProvider(String url) {
+		return Response.ok(
+				new Subscriptions(subscriptionRegistry
+						.removeAllFromProvider(url))).build();
+	}
+
 	public void setSubscriptionRegistry(
 			SubscriptionRegistry subscriptionRegistry) {
 		this.subscriptionRegistry = subscriptionRegistry;

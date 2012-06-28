@@ -80,7 +80,7 @@ public class SubscriptionRegistryServiceImpl implements
 	public List<Subscription> removeAll() {
 		List<Subscription> result = new ArrayList<Subscription>();
 		Iterator<Subscription> it = this.subscriptions.iterator();
-		
+
 		while (it.hasNext()) {
 			Subscription s = it.next();
 			if (subscriptions.remove(s)) {
@@ -108,10 +108,8 @@ public class SubscriptionRegistryServiceImpl implements
 
 			if (subscription.getSubscriber() != null
 					&& subscription.getSubscriber().equals(consumer)) {
-				boolean b = this.subscriptions.remove(subscription);
-				if (b) {
-					result.add(subscription);
-				}
+				iter.remove();
+				result.add(subscription);
 			}
 		}
 		return result;
@@ -129,13 +127,10 @@ public class SubscriptionRegistryServiceImpl implements
 
 			if (subscription.getSubscriber() != null
 					&& subscription.getProvider().equals(provider)) {
-				boolean b = this.subscriptions.remove(subscription);
-				if (b) {
-					result.add(subscription);
-				}
+				iter.remove();
+				result.add(subscription);
 			}
 		}
 		return result;
 	}
-
 }

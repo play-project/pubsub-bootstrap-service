@@ -82,11 +82,11 @@ public interface SubscriptionRegistry {
 	/**
 	 * Remove all the subscriptions where the consumer if equal to the input one
 	 * 
-	 * @param provider
-	 * @return
+	 * @param consumer
+	 * @return the list of removed subscriptions
 	 */
 	@WebMethod
-	List<Subscription> removeAllFromConsumer(String provider);
+	List<Subscription> removeAllFromConsumer(String consumer);
 
 
 }

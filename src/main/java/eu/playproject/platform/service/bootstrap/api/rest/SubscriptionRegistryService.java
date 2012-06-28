@@ -22,6 +22,7 @@ package eu.playproject.platform.service.bootstrap.api.rest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -34,14 +35,34 @@ import javax.ws.rs.core.Response;
 @Path("/registry/")
 public interface SubscriptionRegistryService {
 
+	/**
+	 * Get all the subscriptions
+	 * 
+	 * @return
+	 */
 	@GET
 	@Path("subscriptions")
 	@Produces(MediaType.APPLICATION_JSON)
 	Response all();
 
+	/**
+	 * Clears all the subscriptions
+	 * 
+	 * @return
+	 */
 	@GET
 	@Path("clear")
 	@Produces(MediaType.APPLICATION_JSON)
 	Response clear();
+
+	@GET
+	@Path("clear/provider")
+	@Produces(MediaType.APPLICATION_JSON)
+	Response clearAllFromProvider(@QueryParam("url") String url);
+
+	@GET
+	@Path("clear/subscriber")
+	@Produces(MediaType.APPLICATION_JSON)
+	Response clearAllFromSubscriber(@QueryParam("url") String url);
 
 }
