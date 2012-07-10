@@ -26,6 +26,11 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import org.ow2.play.metadata.api.Data;
+import org.ow2.play.metadata.api.MetadataException;
+import org.ow2.play.metadata.api.Resource;
+import org.ow2.play.metadata.api.service.MetadataService;
+
 import eu.playproject.commons.utils.StreamHelper;
 import eu.playproject.governance.api.GovernanceExeption;
 import eu.playproject.governance.api.bean.Metadata;
@@ -61,6 +66,8 @@ public class DSBSubscribesToECBootstrapServiceImpl implements BootstrapService {
 	private GovernanceClient governanceClient;
 
 	private SubscriptionRegistry subscriptionRegistry;
+
+	private MetadataService metadataServiceClient;
 
 	@Override
 	public List<Subscription> bootstrap(String eventCloudEndpoint,
@@ -133,30 +140,31 @@ public class DSBSubscribesToECBootstrapServiceImpl implements BootstrapService {
 		}
 
 		// check if it is necessary to subscribe to the eventcloud...
-		if (needsToSubscribe(topic)) {
-		    // check if we already subscribed...
-	        if (alreadySubscribed(topic, eventCloudEndpoint, subscriberEndpoint)) {
-	            log.log("DSB already subscribed to EC for topic %s", topic);
-	            logger.info(String.format("Already subscribed to topic %s", topic));
-	            return result;
-	        } else {
-	            // let's subscribe on behalf of the DSB if it is a topic for
-	            // complex events
-	            // let's get the subscribe proxy endpoint
-	            List<String> endpoints = client
-	                    .getSubscribeProxyEndpointUrls(streamName);
-	            if (endpoints == null || endpoints.size() == 0) {
-	                log.log("Can not find any subscribe endpoint in the EC for stream %s",
-	                        streamName);
-	            } else {
-	                log.log("Let's subscribe to eventcloud for stream %s",
-	                        streamName);
+		if (needsToSubscribe(streamName)) {
+			// check if we already subscribed...
+			if (alreadySubscribed(topic, eventCloudEndpoint, subscriberEndpoint)) {
+				log.log("DSB already subscribed to EC for topic %s", topic);
+				logger.info(String.format("Already subscribed to topic %s",
+						topic));
+				return result;
+			} else {
+				// let's subscribe on behalf of the DSB if it is a topic for
+				// complex events
+				// let's get the subscribe proxy endpoint
+				List<String> endpoints = client
+						.getSubscribeProxyEndpointUrls(streamName);
+				if (endpoints == null || endpoints.size() == 0) {
+					log.log("Can not find any subscribe endpoint in the EC for stream %s",
+							streamName);
+				} else {
+					log.log("Let's subscribe to eventcloud for stream %s",
+							streamName);
 
-	                result = topicManager.subscribe(endpoints.get(0), topicName,
-	                        subscriberEndpoint);
-	                log.log("DSB subscribed to EC : " + result);
-	            }
-	        }
+					result = topicManager.subscribe(endpoints.get(0),
+							topicName, subscriberEndpoint);
+					log.log("DSB subscribed to EC : " + result);
+				}
+			}
 		} else {
 			log.log("Do not need to subscribe to eventcloud for stream %s",
 					streamName);
@@ -193,29 +201,35 @@ public class DSBSubscribesToECBootstrapServiceImpl implements BootstrapService {
 	}
 
 	/**
-	 * Query the metadata service to see of we need to subscribe
+	 * Subscribes only if the dsbneedstosubscribe meta is not null and set to
+	 * true.
 	 * 
-	 * @param topic
+	 * @param stream
 	 * @return
 	 */
-	protected boolean needsToSubscribe(Topic topic) {
-		// DSB subscribes only to topics where the metadata for
-		// dsbneedstosubscribe is set to true...
-		List<Metadata> filter = new ArrayList<Metadata>();
-		Metadata meta = new Metadata();
-		meta.setName("dsbneedstosubscribe");
-		meta.setValue("true");
-		filter.add(meta);
-
-		List<Topic> topics = null;
-		try {
-			topics = this.governanceClient.getTopicsWithMeta(filter);
-		} catch (GovernanceExeption e) {
-			e.printStackTrace();
+	protected boolean needsToSubscribe(String stream) {
+		if (stream == null) {
 			return false;
 		}
 
-		return topics != null && topics.contains(topic);
+		Resource r = new Resource();
+		if (stream.contains("#")) {
+			r.setName(stream.substring(stream.indexOf('#') + 1));
+			r.setUrl(stream.substring(0, stream.indexOf('#')));
+		} else {
+			r.setName(stream);
+			r.setUrl(stream);
+		}
+
+		org.ow2.play.metadata.api.Metadata metadata = null;
+		try {
+			metadata = metadataServiceClient.getMetadataValue(r,
+					"http://www.play-project.eu/xml/ns/dsbneedstosubscribe");
+		} catch (MetadataException e) {
+			return false;
+		}
+		return metadata != null
+				&& metadata.getData().contains(new Data("literal", "true"));
 	}
 
 	public void setTopicManager(TopicManager topicManager) {
@@ -234,6 +248,14 @@ public class DSBSubscribesToECBootstrapServiceImpl implements BootstrapService {
 	public void setSubscriptionRegistry(
 			SubscriptionRegistry subscriptionRegistry) {
 		this.subscriptionRegistry = subscriptionRegistry;
+	}
+
+	/**
+	 * @param metadataServiceClient
+	 *            the metadataServiceClient to set
+	 */
+	public void setMetadataServiceClient(MetadataService metadataServiceClient) {
+		this.metadataServiceClient = metadataServiceClient;
 	}
 
 }

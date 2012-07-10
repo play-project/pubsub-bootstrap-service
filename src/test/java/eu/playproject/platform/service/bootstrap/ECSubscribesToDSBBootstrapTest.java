@@ -29,41 +29,14 @@ import org.ow2.play.metadata.json.JSONMetadataLoaderImpl;
 import org.ow2.play.metadata.service.BootstrapServiceImpl;
 import org.ow2.play.metadata.service.InMemoryMetadataServiceImpl;
 
-import eu.playproject.governance.api.bean.Topic;
-import eu.playproject.platform.service.bootstrap.api.Subscription;
-import eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry;
-
 /**
  * @author chamerling
  * 
  */
-public class DSBSubscribesToECBootstrapTest extends TestCase {
-
-	public void testAlreadySubscribed() throws Exception {
-		DSBSubscribesToECBootstrapServiceImpl bootstrap = new DSBSubscribesToECBootstrapServiceImpl();
-		SubscriptionRegistry registry = new SubscriptionRegistryServiceImpl();
-		bootstrap.setSubscriptionRegistry(registry);
-
-		Topic t = new Topic();
-		t.setName("name");
-		t.setNs("http://foo");
-		t.setPrefix("pre");
-
-		String ecEndpoint = "http://ec";
-		String subscriber = "http://dsb";
-
-		assertFalse(bootstrap.alreadySubscribed(t, ecEndpoint, subscriber));
-
-		Subscription subscription = new Subscription("12345", subscriber,
-				ecEndpoint, t, System.currentTimeMillis());
-		registry.addSubscription(subscription);
-
-		assertTrue(bootstrap.alreadySubscribed(t, ecEndpoint, subscriber));
-
-	}
+public class ECSubscribesToDSBBootstrapTest extends TestCase {
 
 	public void testNeedsToSubscribe() throws Exception {
-		DSBSubscribesToECBootstrapServiceImpl bootstrap = new DSBSubscribesToECBootstrapServiceImpl();
+		ECSubscribesToDSBBootstrapServiceImpl bootstrap = new ECSubscribesToDSBBootstrapServiceImpl();
 
 		InMemoryMetadataServiceImpl metadataService = new InMemoryMetadataServiceImpl();
 		BootstrapServiceImpl bootstrapServiceImpl = new BootstrapServiceImpl();
@@ -76,10 +49,13 @@ public class DSBSubscribesToECBootstrapTest extends TestCase {
 				"/metadata.rdf.json").toString());
 		bootstrapServiceImpl.init(urls);
 		bootstrap.setMetadataServiceClient(metadataService);
-		
+
 		assertTrue(metadataService.list().size() > 0);
-		assertTrue(bootstrap.needsToSubscribe("http://streams.event-processing.org/ids/FacebookCepResults#stream"));
-		assertFalse(bootstrap.needsToSubscribe("http://streams.event-processing.org/ids/FacebookStatusFeed#stream"));
+		
+		assertFalse(bootstrap
+				.needsToSubscribe("http://streams.event-processing.org/ids/FacebookCepResults#stream"));
+		assertTrue(bootstrap
+				.needsToSubscribe("http://streams.event-processing.org/ids/FacebookStatusFeed#stream"));
 	}
 
 }

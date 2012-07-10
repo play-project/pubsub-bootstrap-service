@@ -26,6 +26,19 @@
 		</cxf:features>
 	</cxf:bus>
 
+	<bean id="registry"
+		class="eu.playproject.platform.service.bootstrap.InMemoryLocalRegistryServiceImpl">
+		<property name="list">
+			<list>
+				<value>https://raw.github.com/play-project/play-configfiles/master/platformservices/pubsubbootstrap/config.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="metaclient" class="eu.playproject.platform.service.bootstrap.MetadataServiceClient">
+		<property name="url" value="http://playfp7-metadata.herokuapp.com/MetadataService"/>
+	</bean>
+	
 	<bean id="jsonprovider" class="org.apache.cxf.jaxrs.provider.JSONProvider">
 		<property name="serializeAsArray" value="true" />
 	</bean>
@@ -50,6 +63,7 @@
 		<property name="eventCloudClientFactory" ref="eventcloudclientfactory" />
 		<property name="governanceClient" ref="governanceclient" />
 		<property name="subscriptionRegistry" ref="subscriptionregistry" />
+		<property name="metadataServiceClient" ref="metaclient"/>
 	</bean>
 
 	<bean id="ecsubscribestodsbbootstrap"
@@ -58,6 +72,7 @@
 		<property name="eventCloudClientFactory" ref="eventcloudclientfactory" />
 		<property name="governanceClient" ref="governanceclient" />
 		<property name="subscriptionRegistry" ref="subscriptionregistry" />
+		<property name="metadataServiceClient" ref="metaclient"/>
 	</bean>
 
 	<bean id="logservice"
@@ -68,12 +83,14 @@
 		class="eu.playproject.platform.service.bootstrap.rest.InitServiceImpl">
 		<property name="dsbSubscribesBootstrapService" ref="dsbsubscribestoecbootstrap" />
 		<property name="ecSubscribesBootstrapService" ref="ecsubscribestodsbbootstrap" />
+		<property name="endpointRegistry" ref="registry" />
 	</bean>
 
 	<bean id="restlog"
 		class="eu.playproject.platform.service.bootstrap.rest.LogServiceImpl" />
 
-	<bean id="restsubscriptionregistry" class="eu.playproject.platform.service.bootstrap.rest.SubscriptionRegistryServiceImpl">
+	<bean id="restsubscriptionregistry"
+		class="eu.playproject.platform.service.bootstrap.rest.SubscriptionRegistryServiceImpl">
 		<property name="subscriptionRegistry" ref="subscriptionregistry" />
 	</bean>
 

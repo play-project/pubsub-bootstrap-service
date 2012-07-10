@@ -19,14 +19,14 @@
  */
 package eu.playproject.platform.service.bootstrap.rest;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.core.Response;
+
+import org.ow2.play.service.registry.api.Registry;
 
 import eu.playproject.platform.service.bootstrap.MemoryLogServiceImpl;
 import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
@@ -50,11 +50,14 @@ public class InitServiceImpl implements InitService {
 	private BootstrapService dsbSubscribesBootstrapService;
 
 	private BootstrapService ecSubscribesBootstrapService;
-
-	String dsbsubscribeconfig = "https://raw.github.com/play-project/play-configfiles/master/platformservices/pubsubbootstrap/dsbsubscribestoec.properties";
-
-	String ecsubscribeconfig = "https://raw.github.com/play-project/play-configfiles/master/platformservices/pubsubbootstrap/ecsubscribestodsb.properties";
-
+	
+	private Registry endpointRegistry;
+	
+	private static String DSBSUBSCRIBE2EC_ECENDPOINT = "endpoint.dsb2ec.eventcloud";
+	private static String DSBSUBSCRIBE2EC_DSBENDPOINT = "endpoint.dsb2ec.subscriber";
+	private static String ECSUBSCRIBES2DSB_DSBENDPOINT = "endpoint.ec2dsb.dsb";
+	private static String ECSUBSCRIBES2DSB_ECBENDPOINT = "endpoint.ec2dsb.eventcloud";
+	
 	@Override
 	public Response go() {
 		MemoryLogServiceImpl.get().log("Call to bootstrap service");
@@ -78,21 +81,8 @@ public class InitServiceImpl implements InitService {
 		MemoryLogServiceImpl.get().log("DSB subscribes to EC");
 
 		List<Subscription> result = new ArrayList<Subscription>();
-		// get the properties from remote...
-		Properties props = new Properties();
-		try {
-			URL url = new URL(dsbsubscribeconfig);
-			props.load(url.openStream());
-		} catch (Exception e) {
-			logger.warning(e.getMessage());
-			if (logger.isLoggable(Level.FINE)) {
-				e.printStackTrace();
-			}
-			return result;
-		}
-
-		String eventCloudEndpoint = props.getProperty("endpoint.eventcloud");
-		String subscriberEndpoint = props.getProperty("endpoint.subscriber");
+		String eventCloudEndpoint = endpointRegistry.get(DSBSUBSCRIBE2EC_ECENDPOINT);
+		String subscriberEndpoint = endpointRegistry.get(DSBSUBSCRIBE2EC_DSBENDPOINT);
 
 		logger.info(String.format("Initializing with ec %s and subscriber %s",
 				eventCloudEndpoint, subscriberEndpoint));
@@ -118,18 +108,8 @@ public class InitServiceImpl implements InitService {
 
 		List<Subscription> result = new ArrayList<Subscription>();
 
-		// get the properties from remote...
-		Properties props = new Properties();
-		try {
-			URL url = new URL(ecsubscribeconfig);
-			props.load(url.openStream());
-		} catch (Exception e) {
-			e.printStackTrace();
-			return result;
-		}
-
-		String eventCloudEndpoint = props.getProperty("endpoint.eventcloud");
-		String dsbEndpoint = props.getProperty("endpoint.dsb");
+		String eventCloudEndpoint = endpointRegistry.get(ECSUBSCRIBES2DSB_ECBENDPOINT);
+		String dsbEndpoint = endpointRegistry.get(ECSUBSCRIBES2DSB_DSBENDPOINT);
 
 		logger.info(String.format("Initializing with ec %s and dsb %s",
 				eventCloudEndpoint, dsbEndpoint));
@@ -158,6 +138,13 @@ public class InitServiceImpl implements InitService {
 	public void setEcSubscribesBootstrapService(
 			BootstrapService ecSubscribesBootstrapService) {
 		this.ecSubscribesBootstrapService = ecSubscribesBootstrapService;
+	}
+	
+	/**
+	 * @param endpointRegistry the endpointRegistry to set
+	 */
+	public void setEndpointRegistry(Registry endpointRegistry) {
+		this.endpointRegistry = endpointRegistry;
 	}
 
 }

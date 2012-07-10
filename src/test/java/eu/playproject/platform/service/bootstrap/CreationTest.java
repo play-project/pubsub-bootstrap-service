@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jws.WebMethod;
 import javax.xml.namespace.QName;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
@@ -30,6 +31,11 @@ import junit.framework.TestCase;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.ow2.play.metadata.api.Data;
+import org.ow2.play.metadata.api.MetaResource;
+import org.ow2.play.metadata.api.MetadataException;
+import org.ow2.play.metadata.api.Resource;
+import org.ow2.play.metadata.api.service.MetadataService;
 
 import eu.playproject.governance.api.GovernanceExeption;
 import eu.playproject.governance.api.bean.Metadata;
@@ -43,6 +49,8 @@ public class CreationTest extends TestCase {
 	public void testCreate() throws Exception {
 
 		Topic t1 = new Topic();
+		
+		// just subscribe for T1
 		t1.setName("T1");
 		t1.setNs("http://foo");
 		t1.setPrefix("pre");
@@ -55,9 +63,6 @@ public class CreationTest extends TestCase {
 		final List<Topic> topics = new ArrayList<Topic>();
 		topics.add(t1);
 		topics.add(t2);
-
-		final List<Topic> filtered = new ArrayList<Topic>();
-		filtered.add(t1);
 
 		String ecEndpoint = "http://localhost:4568/EventCloudService";
 		String subscriberEndpoint = "http://localhost:4569/SubscriberService";
@@ -116,8 +121,7 @@ public class CreationTest extends TestCase {
 			@Override
 			public List<Topic> getTopicsWithMeta(List<Metadata> arg0)
 					throws GovernanceExeption {
-				System.out.println("Get topics with meta " + arg0);
-				return filtered;
+				return null;
 			}
 
 			@Override
@@ -148,10 +152,82 @@ public class CreationTest extends TestCase {
 			}
 		});
 
+		service.setMetadataServiceClient(new MetadataService() {
+
+			@Override
+			@WebMethod
+			public void removeMetadata(Resource arg0,
+					org.ow2.play.metadata.api.Metadata arg1)
+					throws MetadataException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			@WebMethod
+			public List<MetaResource> list() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			@WebMethod
+			public List<MetaResource> getResoucesWithMeta(
+					List<org.ow2.play.metadata.api.Metadata> arg0)
+					throws MetadataException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			@WebMethod
+			public org.ow2.play.metadata.api.Metadata getMetadataValue(
+					Resource resource, String arg1) throws MetadataException {
+				
+				System.out.println("Get meta for resource " + resource.getUrl() + "  :  " + resource.getName());
+				
+				if (resource.getName().contains("T1")) {
+				return new org.ow2.play.metadata.api.Metadata(
+						"http://www.play-project.eu/xml/ns/dsbneedstosubscribe",
+						new Data("literal", "true"));
+				} else {
+					return null;
+				}
+			}
+
+			@Override
+			@WebMethod
+			public List<org.ow2.play.metadata.api.Metadata> getMetaData(
+					Resource arg0) throws MetadataException {
+				System.out.println("GET META");
+				List<org.ow2.play.metadata.api.Metadata> result = new ArrayList<org.ow2.play.metadata.api.Metadata>();
+				result.add(new org.ow2.play.metadata.api.Metadata(
+						"http://www.play-project.eu/xml/ns/dsbneedstosubscribe",
+						new Data("literal", "false")));
+				return result;
+			}
+
+			@Override
+			@WebMethod
+			public boolean deleteMetaData(Resource arg0)
+					throws MetadataException {
+				return false;
+			}
+
+			@Override
+			@WebMethod
+			public void addMetadata(Resource arg0,
+					org.ow2.play.metadata.api.Metadata arg1)
+					throws MetadataException {
+
+			}
+		});
+
 		List<Subscription> result = service.bootstrap(ecEndpoint,
 				subscriberEndpoint);
 
 		System.out.println(result);
+		
 		Assert.assertTrue(result.size() == 1);
 	}
 

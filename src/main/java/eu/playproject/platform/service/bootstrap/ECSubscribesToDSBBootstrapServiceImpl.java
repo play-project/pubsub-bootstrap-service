@@ -26,6 +26,11 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import org.ow2.play.metadata.api.Data;
+import org.ow2.play.metadata.api.MetadataException;
+import org.ow2.play.metadata.api.Resource;
+import org.ow2.play.metadata.api.service.MetadataService;
+
 import eu.playproject.commons.utils.StreamHelper;
 import eu.playproject.governance.api.GovernanceExeption;
 import eu.playproject.governance.api.bean.Metadata;
@@ -57,8 +62,10 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 	private EventCloudClientFactory eventCloudClientFactory;
 
 	private GovernanceClient governanceClient;
-	
+
 	private SubscriptionRegistry subscriptionRegistry;
+
+	private MetadataService metadataServiceClient;
 
 	/*
 	 * Provider is the DSB. subscriber is the EC.
@@ -97,7 +104,7 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 	 */
 	private Subscription createResources(Topic topic, String providerEndpoint,
 			String subscriberEndpoint) {
-		
+
 		LogService log = MemoryLogServiceImpl.get();
 
 		Subscription result = null;
@@ -117,17 +124,19 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 				.get(0) : null;
 
 		if (subscriber == null) {
-			log.log("Can not find any valid endpoint from EC for stream %s", stream);
+			log.log("Can not find any valid endpoint from EC for stream %s",
+					stream);
 			logger.info("Can not get any valid EC endpoint");
 			return null;
 		}
 
 		logger.info("Let's use the EC endpoint at : " + subscriber);
-		
+
 		// check if we already subscribed...
 		if (alreadySubscribed(topic, subscriber, providerEndpoint)) {
 			log.log("EC already subscribed to DSB for topic %s", topic);
-			logger.info(String.format("EC at %s already subscribed to topic %s", topic));
+			logger.info(String.format(
+					"EC at %s already subscribed to topic %s", topic));
 			return result;
 		}
 
@@ -168,7 +177,39 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 
 		return topics != null && !topics.contains(topic);
 	}
-	
+
+	/**
+	 * Subscribes only if the dsbneedstosubscribe metadata is not present or set
+	 * to false.
+	 * 
+	 * @param stream
+	 * @return
+	 */
+	protected boolean needsToSubscribe(String stream) {
+		if (stream == null) {
+			return false;
+		}
+
+		Resource r = new Resource();
+		if (stream.contains("#")) {
+			r.setName(stream.substring(stream.indexOf('#') + 1));
+			r.setUrl(stream.substring(0, stream.indexOf('#')));
+		} else {
+			r.setName(stream);
+			r.setUrl(stream);
+		}
+
+		org.ow2.play.metadata.api.Metadata metadata = null;
+		try {
+			metadata = metadataServiceClient.getMetadataValue(r,
+					"http://www.play-project.eu/xml/ns/dsbneedstosubscribe");
+		} catch (MetadataException e) {
+			return false;
+		}
+		return metadata == null
+				|| metadata.getData().contains(new Data("literal", "false"));
+	}
+
 	/**
 	 * Event cloud is the subscriber, dsb is the provider.
 	 * 
@@ -206,10 +247,18 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 	public void setGovernanceClient(GovernanceClient governanceClient) {
 		this.governanceClient = governanceClient;
 	}
-	
+
 	public void setSubscriptionRegistry(
 			SubscriptionRegistry subscriptionRegistry) {
 		this.subscriptionRegistry = subscriptionRegistry;
+	}
+
+	/**
+	 * @param metadataServiceClient
+	 *            the metadataServiceClient to set
+	 */
+	public void setMetadataServiceClient(MetadataService metadataServiceClient) {
+		this.metadataServiceClient = metadataServiceClient;
 	}
 
 }
