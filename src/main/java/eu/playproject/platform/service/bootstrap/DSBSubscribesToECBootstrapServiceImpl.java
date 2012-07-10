@@ -211,16 +211,11 @@ public class DSBSubscribesToECBootstrapServiceImpl implements BootstrapService {
 		if (stream == null) {
 			return false;
 		}
+		
+		// Note: We have a stream which is composed by the topic name + #stream...
+		// let's project into resource...
 
-		Resource r = new Resource();
-		if (stream.contains("#")) {
-			r.setName(stream.substring(stream.indexOf('#') + 1));
-			r.setUrl(stream.substring(0, stream.indexOf('#')));
-		} else {
-			r.setName(stream);
-			r.setUrl(stream);
-		}
-
+		Resource r = new Resource("stream", stream);
 		org.ow2.play.metadata.api.Metadata metadata = null;
 		try {
 			metadata = metadataServiceClient.getMetadataValue(r,

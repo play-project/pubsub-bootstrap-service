@@ -186,7 +186,7 @@ public class CreationTest extends TestCase {
 				
 				System.out.println("Get meta for resource " + resource.getUrl() + "  :  " + resource.getName());
 				
-				if (resource.getName().contains("T1")) {
+				if (resource.toString().contains("T1")) {
 				return new org.ow2.play.metadata.api.Metadata(
 						"http://www.play-project.eu/xml/ns/dsbneedstosubscribe",
 						new Data("literal", "true"));

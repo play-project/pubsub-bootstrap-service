@@ -53,9 +53,9 @@ public class ECSubscribesToDSBBootstrapTest extends TestCase {
 		assertTrue(metadataService.list().size() > 0);
 		
 		assertFalse(bootstrap
-				.needsToSubscribe("http://streams.event-processing.org/ids/FacebookCepResults#stream"));
+				.needsToSubscribe("http://streams.event-processing.org/ids/FacebookCepResults"));
 		assertTrue(bootstrap
-				.needsToSubscribe("http://streams.event-processing.org/ids/FacebookStatusFeed#stream"));
+				.needsToSubscribe("http://streams.event-processing.org/ids/FacebookStatusFeed"));
 	}
 
 }

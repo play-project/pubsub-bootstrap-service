@@ -78,8 +78,8 @@ public class DSBSubscribesToECBootstrapTest extends TestCase {
 		bootstrap.setMetadataServiceClient(metadataService);
 		
 		assertTrue(metadataService.list().size() > 0);
-		assertTrue(bootstrap.needsToSubscribe("http://streams.event-processing.org/ids/FacebookCepResults#stream"));
-		assertFalse(bootstrap.needsToSubscribe("http://streams.event-processing.org/ids/FacebookStatusFeed#stream"));
+		assertTrue(bootstrap.needsToSubscribe("http://streams.event-processing.org/ids/FacebookCepResults"));
+		assertFalse(bootstrap.needsToSubscribe("http://streams.event-processing.org/ids/FacebookStatusFeed"));
 	}
 
 }
