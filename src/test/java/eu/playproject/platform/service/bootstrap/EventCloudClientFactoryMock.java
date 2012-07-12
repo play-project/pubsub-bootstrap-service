@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+
 import org.petalslink.dsb.commons.service.api.Service;
 import org.petalslink.dsb.cxf.CXFHelper;
 
@@ -142,6 +145,14 @@ public class EventCloudClientFactoryMock implements EventCloudClientFactory {
 						result.add(eventCloudEndpointPrefix + "SubscribePoxy");
 						System.out.println("Get subscribe proxy " + result);
 						return result;
+					}
+
+					@Override
+					@WebMethod
+					public boolean isCreated(
+							@WebParam(name = "streamUrl") String arg0) {
+						// TODO Auto-generated method stub
+						return false;
 					}
 
 				});
