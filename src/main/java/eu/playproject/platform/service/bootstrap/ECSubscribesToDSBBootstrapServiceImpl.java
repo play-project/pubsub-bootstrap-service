@@ -140,7 +140,7 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 			return result;
 		}
 
-		if (needsToSubscribe(topic)) {
+		if (needsToSubscribe(stream)) {
 			// send the subscribe to the event cloud on behalf of the DSB
 			try {
 				logger.info("Subscribe for topic " + topic);
@@ -156,26 +156,6 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 		}
 
 		return result;
-	}
-
-	protected boolean needsToSubscribe(Topic topic) {
-		// only subscribe if this is not a topic the DSB needs to subscribe...
-
-		List<Metadata> filter = new ArrayList<Metadata>();
-		Metadata meta = new Metadata();
-		meta.setName("dsbneedstosubscribe");
-		meta.setValue("true");
-		filter.add(meta);
-
-		List<Topic> topics = null;
-		try {
-			topics = this.governanceClient.getTopicsWithMeta(filter);
-		} catch (GovernanceExeption e) {
-			e.printStackTrace();
-			return false;
-		}
-
-		return topics != null && !topics.contains(topic);
 	}
 
 	/**
