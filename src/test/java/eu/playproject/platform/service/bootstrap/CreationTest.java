@@ -230,5 +230,4 @@ public class CreationTest extends TestCase {
 		
 		Assert.assertTrue(result.size() == 1);
 	}
-
 }
