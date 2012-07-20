@@ -19,42 +19,34 @@
  */
 package eu.playproject.platform.service.bootstrap;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.WebMethod;
 
 import org.ow2.play.service.registry.api.Registry;
+import org.ow2.play.service.registry.api.RegistryException;
+import org.petalslink.dsb.cxf.CXFHelper;
 
 /**
- * A local registry service, badly implemented, not synchonized, ...
- * 
  * @author chamerling
  * 
  */
-public class InMemoryLocalRegistryServiceImpl implements Registry {
+public class ServiceRegistry implements Registry {
 
-	private static Logger logger = Logger
-			.getLogger(InMemoryLocalRegistryServiceImpl.class.getName());
+	private Registry client;
 
-	private Map<String, String> map = new HashMap<String, String>();
+	private String url;
 
-	private List<String> list = new ArrayList<String>();
+	private static Logger logger = Logger.getLogger(ServiceRegistry.class
+			.getName());
 
-	private boolean loaded = false;
-
-	protected synchronized void loadAll() {
-		logger.info("Loading data");
-		for (String url : list) {
-			load(url);
+	protected synchronized Registry getClient() {
+		if (client == null) {
+			logger.fine("Builidng CXF client");
+			client = CXFHelper.getClientFromFinalURL(url, Registry.class);
 		}
-		loaded = true;
+		return client;
 	}
 
 	/*
@@ -64,9 +56,9 @@ public class InMemoryLocalRegistryServiceImpl implements Registry {
 	 */
 	@Override
 	@WebMethod
-	public void clear() {
-		map = new HashMap<String, String>();
-		loaded = false;
+	public void clear() throws RegistryException {
+		logger.fine("Clear registry");
+		getClient().clear();
 	}
 
 	/*
@@ -76,11 +68,9 @@ public class InMemoryLocalRegistryServiceImpl implements Registry {
 	 */
 	@Override
 	@WebMethod
-	public String get(String key) {
-		if (!loaded) {
-			loadAll();
-		}
-		return map.get(key);
+	public String get(String name) throws RegistryException {
+		logger.fine("Get endpoint for name " + name);
+		return getClient().get(name);
 	}
 
 	/*
@@ -90,11 +80,9 @@ public class InMemoryLocalRegistryServiceImpl implements Registry {
 	 */
 	@Override
 	@WebMethod
-	public List<String> keys() {
-		if (!loaded) {
-			loadAll();
-		}
-		return new ArrayList<String>(map.keySet());
+	public List<String> keys() throws RegistryException {
+		logger.info("Get keys");
+		return getClient().keys();
 	}
 
 	/*
@@ -104,25 +92,9 @@ public class InMemoryLocalRegistryServiceImpl implements Registry {
 	 */
 	@Override
 	@WebMethod
-	public void load(String url) {
-		if (url == null) {
-			return;
-		}
-		Properties props = new Properties();
-
-		try {
-			URL u = new URL(url);
-			props.load(u.openStream());
-
-			for (String key : props.stringPropertyNames()) {
-				map.put(key, props.getProperty(key));
-			}
-		} catch (Exception e) {
-			logger.warning(e.getMessage());
-			if (logger.isLoggable(Level.FINE)) {
-				e.printStackTrace();
-			}
-		}
+	public void load(String url) throws RegistryException {
+		logger.info("Load from " + url);
+		getClient().load(url);
 	}
 
 	/*
@@ -133,17 +105,28 @@ public class InMemoryLocalRegistryServiceImpl implements Registry {
 	 */
 	@Override
 	@WebMethod
-	public void put(String key, String value) {
-		this.map.put(key, value);
+	public void put(String name, String value) throws RegistryException {
+		logger.info("Put data in service registry : " + name + " - " + value);
+		getClient().put(name, value);
 	}
 
-	/**
-	 * @param list
-	 *            the list to set
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.ow2.play.service.registry.api.Registry#init()
 	 */
-	public void setList(List<String> list) {
-		logger.info("Set list " + list);
-		this.list = list;
+	@Override
+	@WebMethod
+	public void init() throws RegistryException {
+		logger.fine("Initialize service registry");
+		getClient().init();
+	}
+	
+	/**
+	 * @param url the url to set
+	 */
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 }

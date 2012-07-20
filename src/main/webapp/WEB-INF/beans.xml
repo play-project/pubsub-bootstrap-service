@@ -27,16 +27,12 @@
 	</cxf:bus>
 
 	<bean id="registry"
-		class="eu.playproject.platform.service.bootstrap.InMemoryLocalRegistryServiceImpl">
-		<property name="list">
-			<list>
-				<value>https://raw.github.com/play-project/play-configfiles/master/platformservices/pubsubbootstrap/config.properties</value>
-			</list>
-		</property>
+		class="eu.playproject.platform.service.bootstrap.ServiceRegistry">
+		<property name="url" value="http://46.105.181.221:8080/registry/RegistryService"/>
 	</bean>
 	
 	<bean id="metaclient" class="eu.playproject.platform.service.bootstrap.MetadataServiceClient">
-		<property name="url" value="http://playfp7-metadata.herokuapp.com/MetadataService"/>
+		<property name="registry" ref="registry"/>
 	</bean>
 	
 	<bean id="jsonprovider" class="org.apache.cxf.jaxrs.provider.JSONProvider">

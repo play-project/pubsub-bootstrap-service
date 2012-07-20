@@ -27,7 +27,9 @@ import java.util.logging.Logger;
 import javax.ws.rs.core.Response;
 
 import org.ow2.play.service.registry.api.Registry;
+import org.ow2.play.service.registry.api.RegistryException;
 
+import eu.playproject.platform.service.bootstrap.Constants;
 import eu.playproject.platform.service.bootstrap.MemoryLogServiceImpl;
 import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
 import eu.playproject.platform.service.bootstrap.api.BootstrapService;
@@ -50,14 +52,9 @@ public class InitServiceImpl implements InitService {
 	private BootstrapService dsbSubscribesBootstrapService;
 
 	private BootstrapService ecSubscribesBootstrapService;
-	
+
 	private Registry endpointRegistry;
-	
-	private static String DSBSUBSCRIBE2EC_ECENDPOINT = "endpoint.dsb2ec.eventcloud";
-	private static String DSBSUBSCRIBE2EC_DSBENDPOINT = "endpoint.dsb2ec.subscriber";
-	private static String ECSUBSCRIBES2DSB_DSBENDPOINT = "endpoint.ec2dsb.dsb";
-	private static String ECSUBSCRIBES2DSB_ECBENDPOINT = "endpoint.ec2dsb.eventcloud";
-	
+
 	@Override
 	public Response go() {
 		MemoryLogServiceImpl.get().log("Call to bootstrap service");
@@ -81,11 +78,29 @@ public class InitServiceImpl implements InitService {
 		MemoryLogServiceImpl.get().log("DSB subscribes to EC");
 
 		List<Subscription> result = new ArrayList<Subscription>();
-		String eventCloudEndpoint = endpointRegistry.get(DSBSUBSCRIBE2EC_ECENDPOINT);
-		String subscriberEndpoint = endpointRegistry.get(DSBSUBSCRIBE2EC_DSBENDPOINT);
+
+		String eventCloudEndpoint = null;
+		String subscriberEndpoint = null;
+		try {
+			eventCloudEndpoint = endpointRegistry
+					.get(Constants.DSBSUBSCRIBE2EC_ECENDPOINT);
+			subscriberEndpoint = endpointRegistry
+					.get(Constants.DSBSUBSCRIBE2EC_DSBENDPOINT);
+		} catch (RegistryException e1) {
+			logger.warning(e1.getMessage());
+			if (logger.isLoggable(Level.FINE)) {
+				logger.log(Level.WARNING, "Can not get data from the registry",
+						e1);
+			}
+		}
 
 		logger.info(String.format("Initializing with ec %s and subscriber %s",
 				eventCloudEndpoint, subscriberEndpoint));
+
+		if (eventCloudEndpoint == null || subscriberEndpoint == null) {
+			logger.warning("Can not initialize with null values....");
+			return result;
+		}
 
 		try {
 			result.addAll(dsbSubscribesBootstrapService.bootstrap(
@@ -97,7 +112,10 @@ public class InitServiceImpl implements InitService {
 				}
 			}
 		} catch (BootstrapFault e) {
-			e.printStackTrace();
+			logger.warning(e.getMessage());
+			if (logger.isLoggable(Level.FINE)) {
+				logger.log(Level.WARNING, "Can not boot", e);
+			}
 		}
 
 		return result;
@@ -108,11 +126,28 @@ public class InitServiceImpl implements InitService {
 
 		List<Subscription> result = new ArrayList<Subscription>();
 
-		String eventCloudEndpoint = endpointRegistry.get(ECSUBSCRIBES2DSB_ECBENDPOINT);
-		String dsbEndpoint = endpointRegistry.get(ECSUBSCRIBES2DSB_DSBENDPOINT);
+		String eventCloudEndpoint = null;
+		String dsbEndpoint = null;
+		try {
+			eventCloudEndpoint = endpointRegistry
+					.get(Constants.ECSUBSCRIBES2DSB_ECBENDPOINT);
+			dsbEndpoint = endpointRegistry
+					.get(Constants.ECSUBSCRIBES2DSB_DSBENDPOINT);
+		} catch (RegistryException e1) {
+			logger.warning(e1.getMessage());
+			if (logger.isLoggable(Level.FINE)) {
+				logger.log(Level.WARNING, "Can not get data from the registry",
+						e1);
+			}
+		}
 
 		logger.info(String.format("Initializing with ec %s and dsb %s",
 				eventCloudEndpoint, dsbEndpoint));
+
+		if (eventCloudEndpoint == null || dsbEndpoint == null) {
+			logger.warning("Can not initialize with null values....");
+			return result;
+		}
 
 		try {
 			result.addAll(ecSubscribesBootstrapService.bootstrap(dsbEndpoint,
@@ -125,7 +160,10 @@ public class InitServiceImpl implements InitService {
 			}
 
 		} catch (BootstrapFault e) {
-			e.printStackTrace();
+			logger.warning(e.getMessage());
+			if (logger.isLoggable(Level.FINE)) {
+				logger.log(Level.WARNING, "Can not boot", e);
+			}
 		}
 		return result;
 	}
@@ -139,9 +177,10 @@ public class InitServiceImpl implements InitService {
 			BootstrapService ecSubscribesBootstrapService) {
 		this.ecSubscribesBootstrapService = ecSubscribesBootstrapService;
 	}
-	
+
 	/**
-	 * @param endpointRegistry the endpointRegistry to set
+	 * @param endpointRegistry
+	 *            the endpointRegistry to set
 	 */
 	public void setEndpointRegistry(Registry endpointRegistry) {
 		this.endpointRegistry = endpointRegistry;

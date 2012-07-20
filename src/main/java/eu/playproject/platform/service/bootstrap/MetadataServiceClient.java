@@ -29,6 +29,8 @@ import org.ow2.play.metadata.api.Metadata;
 import org.ow2.play.metadata.api.MetadataException;
 import org.ow2.play.metadata.api.Resource;
 import org.ow2.play.metadata.api.service.MetadataService;
+import org.ow2.play.service.registry.api.Registry;
+import org.ow2.play.service.registry.api.RegistryException;
 import org.petalslink.dsb.cxf.CXFHelper;
 
 /**
@@ -37,15 +39,35 @@ import org.petalslink.dsb.cxf.CXFHelper;
  */
 public class MetadataServiceClient implements MetadataService {
 
-	private String url;
-
 	private MetadataService client;
+
+	private Registry registry;
 
 	private static Logger logger = Logger.getLogger(MetadataServiceClient.class
 			.getName());
 
-	protected synchronized MetadataService getClient() {
+	protected synchronized MetadataService getClient() throws MetadataException {
 		if (client == null) {
+
+			// get URL from the registry
+			if (registry == null) {
+				logger.warning("Can not get the registry!");
+				throw new MetadataException("Can not get the registry");
+			}
+
+			String url = null;
+			try {
+				url = registry.get(Constants.METADATA_SERVICE);
+			} catch (RegistryException e) {
+				throw new MetadataException(e);
+			}
+
+			if (url == null) {
+				logger.warning("Can not get the URL from the registry!");
+				throw new MetadataException(
+						"Can not get the URL from the registry!");
+			}
+
 			logger.info("Building service client for service at " + url);
 			client = CXFHelper
 					.getClientFromFinalURL(url, MetadataService.class);
@@ -156,11 +178,10 @@ public class MetadataServiceClient implements MetadataService {
 	}
 
 	/**
-	 * @param url
-	 *            the url to set
+	 * @param registry
+	 *            the registry to set
 	 */
-	public void setUrl(String url) {
-		this.url = url;
+	public void setRegistry(Registry registry) {
+		this.registry = registry;
 	}
-
 }
