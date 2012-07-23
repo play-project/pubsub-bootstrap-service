@@ -27,11 +27,11 @@
 	</cxf:bus>
 
 	<bean id="registry"
-		class="eu.playproject.platform.service.bootstrap.ServiceRegistry">
+		class="eu.playproject.platform.service.bootstrap.client.ServiceRegistry">
 		<property name="url" value="http://46.105.181.221:8080/registry/RegistryService"/>
 	</bean>
 	
-	<bean id="metaclient" class="eu.playproject.platform.service.bootstrap.MetadataServiceClient">
+	<bean id="metaclient" class="eu.playproject.platform.service.bootstrap.client.MetadataServiceClient">
 		<property name="registry" ref="registry"/>
 	</bean>
 	
@@ -40,7 +40,7 @@
 	</bean>
 
 	<bean id="governanceclient"
-		class="eu.playproject.platform.service.bootstrap.GovernanceClientImpl" />
+		class="eu.playproject.platform.service.bootstrap.client.GovernanceClientImpl" />
 
 	<bean id="subscriptionregistry"
 		class="eu.playproject.platform.service.bootstrap.SubscriptionRegistryServiceImpl" />
@@ -51,7 +51,7 @@
 	</bean>
 
 	<bean id="eventcloudclientfactory"
-		class="eu.playproject.platform.service.bootstrap.JAXWSEventCloudClientFactory" />
+		class="eu.playproject.platform.service.bootstrap.client.JAXWSEventCloudClientFactory" />
 
 	<bean id="dsbsubscribestoecbootstrap"
 		class="eu.playproject.platform.service.bootstrap.DSBSubscribesToECBootstrapServiceImpl">

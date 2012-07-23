@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
  *
  */
-package eu.playproject.platform.service.bootstrap;
+package eu.playproject.platform.service.bootstrap.client;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -32,6 +32,8 @@ import org.ow2.play.metadata.api.service.MetadataService;
 import org.ow2.play.service.registry.api.Registry;
 import org.ow2.play.service.registry.api.RegistryException;
 import org.petalslink.dsb.cxf.CXFHelper;
+
+import eu.playproject.platform.service.bootstrap.Constants;
 
 /**
  * @author chamerling

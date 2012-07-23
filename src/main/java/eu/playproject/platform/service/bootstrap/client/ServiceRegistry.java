@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA 
  *
  */
-package eu.playproject.platform.service.bootstrap;
+package eu.playproject.platform.service.bootstrap.client;
 
 import java.util.List;
 import java.util.logging.Logger;
