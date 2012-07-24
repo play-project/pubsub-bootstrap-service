@@ -28,7 +28,7 @@
 
 	<bean id="registry"
 		class="eu.playproject.platform.service.bootstrap.client.ServiceRegistry">
-		<property name="url" value="http://46.105.181.221:8080/registry/RegistryService"/>
+		<property name="url" value="http://localhost:8080/registry/RegistryService"/>
 	</bean>
 	
 	<bean id="metaclient" class="eu.playproject.platform.service.bootstrap.client.MetadataServiceClient">
