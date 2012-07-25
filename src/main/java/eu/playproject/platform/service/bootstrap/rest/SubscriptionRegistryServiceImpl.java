@@ -21,7 +21,8 @@ package eu.playproject.platform.service.bootstrap.rest;
 
 import javax.ws.rs.core.Response;
 
-import eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry;
+import org.ow2.play.governance.api.SubscriptionRegistry;
+
 import eu.playproject.platform.service.bootstrap.api.rest.SubscriptionRegistryService;
 import eu.playproject.platform.service.bootstrap.api.rest.beans.Subscriptions;
 

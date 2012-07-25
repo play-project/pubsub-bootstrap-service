@@ -24,14 +24,14 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.ow2.play.governance.api.SubscriptionRegistry;
+import org.ow2.play.governance.api.bean.Subscription;
+import org.ow2.play.governance.api.bean.Topic;
+import org.ow2.play.governance.service.InMemorySubscriptionRegistryService;
 import org.ow2.play.metadata.api.service.MetadataLoader;
 import org.ow2.play.metadata.json.JSONMetadataLoaderImpl;
 import org.ow2.play.metadata.service.BootstrapServiceImpl;
 import org.ow2.play.metadata.service.InMemoryMetadataServiceImpl;
-
-import eu.playproject.governance.api.bean.Topic;
-import eu.playproject.platform.service.bootstrap.api.Subscription;
-import eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry;
 
 /**
  * @author chamerling
@@ -41,7 +41,7 @@ public class DSBSubscribesToECBootstrapTest extends TestCase {
 
 	public void testAlreadySubscribed() throws Exception {
 		DSBSubscribesToECBootstrapServiceImpl bootstrap = new DSBSubscribesToECBootstrapServiceImpl();
-		SubscriptionRegistry registry = new SubscriptionRegistryServiceImpl();
+		SubscriptionRegistry registry = new InMemorySubscriptionRegistryService();
 		bootstrap.setSubscriptionRegistry(registry);
 
 		Topic t = new Topic();

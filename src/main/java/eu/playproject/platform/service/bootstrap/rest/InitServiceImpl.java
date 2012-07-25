@@ -26,14 +26,13 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.core.Response;
 
+import org.ow2.play.governance.api.bean.Subscription;
 import org.ow2.play.service.registry.api.Registry;
 import org.ow2.play.service.registry.api.RegistryException;
 
-import eu.playproject.platform.service.bootstrap.Constants;
 import eu.playproject.platform.service.bootstrap.MemoryLogServiceImpl;
 import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
 import eu.playproject.platform.service.bootstrap.api.BootstrapService;
-import eu.playproject.platform.service.bootstrap.api.Subscription;
 import eu.playproject.platform.service.bootstrap.api.rest.InitService;
 import eu.playproject.platform.service.bootstrap.api.rest.beans.Subscriptions;
 
@@ -83,9 +82,9 @@ public class InitServiceImpl implements InitService {
 		String subscriberEndpoint = null;
 		try {
 			eventCloudEndpoint = endpointRegistry
-					.get(Constants.DSBSUBSCRIBE2EC_ECENDPOINT);
+					.get(org.ow2.play.service.registry.api.Constants.DSB_TO_EC_EC);
 			subscriberEndpoint = endpointRegistry
-					.get(Constants.DSBSUBSCRIBE2EC_DSBENDPOINT);
+					.get(org.ow2.play.service.registry.api.Constants.DSB_TO_EC_EC_SUBSCRIBER);
 		} catch (RegistryException e1) {
 			logger.warning(e1.getMessage());
 			if (logger.isLoggable(Level.FINE)) {
@@ -130,9 +129,9 @@ public class InitServiceImpl implements InitService {
 		String dsbEndpoint = null;
 		try {
 			eventCloudEndpoint = endpointRegistry
-					.get(Constants.ECSUBSCRIBES2DSB_ECBENDPOINT);
+					.get(org.ow2.play.service.registry.api.Constants.EC_TO_DSB_EC);
 			dsbEndpoint = endpointRegistry
-					.get(Constants.ECSUBSCRIBES2DSB_DSBENDPOINT);
+					.get(org.ow2.play.service.registry.api.Constants.EC_TO_DSB_DSB);
 		} catch (RegistryException e1) {
 			logger.warning(e1.getMessage());
 			if (logger.isLoggable(Level.FINE)) {

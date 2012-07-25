@@ -21,9 +21,10 @@ package eu.playproject.platform.service.bootstrap;
 
 import javax.xml.namespace.QName;
 
-import eu.playproject.governance.api.bean.Topic;
+import org.ow2.play.governance.api.bean.Subscription;
+import org.ow2.play.governance.api.bean.Topic;
+
 import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
-import eu.playproject.platform.service.bootstrap.api.Subscription;
 import eu.playproject.platform.service.bootstrap.api.TopicManager;
 
 public class TopicManagerMock implements TopicManager {

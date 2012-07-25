@@ -24,6 +24,8 @@ import java.util.List;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
+import org.ow2.play.governance.api.bean.Subscription;
+
 /**
  * Bootstrap API between notification consumers and providers.
  * 

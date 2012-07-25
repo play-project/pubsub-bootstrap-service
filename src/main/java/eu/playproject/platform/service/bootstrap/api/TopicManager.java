@@ -21,6 +21,8 @@ package eu.playproject.platform.service.bootstrap.api;
 
 import javax.xml.namespace.QName;
 
+import org.ow2.play.governance.api.bean.Subscription;
+
 /**
  * @author chamerling
  * 

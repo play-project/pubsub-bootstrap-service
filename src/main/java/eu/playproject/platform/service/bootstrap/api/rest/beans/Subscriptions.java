@@ -24,7 +24,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.playproject.platform.service.bootstrap.api.Subscription;
+import org.ow2.play.governance.api.bean.Subscription;
 
 /**
  * Used to get subscriptions list for REST services without any additional

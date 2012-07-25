@@ -26,22 +26,20 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import org.ow2.play.governance.api.SubscriptionRegistry;
+import org.ow2.play.governance.api.bean.Subscription;
+import org.ow2.play.governance.api.bean.Topic;
 import org.ow2.play.metadata.api.Data;
 import org.ow2.play.metadata.api.MetadataException;
 import org.ow2.play.metadata.api.Resource;
 import org.ow2.play.metadata.api.service.MetadataService;
 
 import eu.playproject.commons.utils.StreamHelper;
-import eu.playproject.governance.api.GovernanceExeption;
-import eu.playproject.governance.api.bean.Metadata;
-import eu.playproject.governance.api.bean.Topic;
 import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
 import eu.playproject.platform.service.bootstrap.api.BootstrapService;
 import eu.playproject.platform.service.bootstrap.api.EventCloudClientFactory;
 import eu.playproject.platform.service.bootstrap.api.GovernanceClient;
 import eu.playproject.platform.service.bootstrap.api.LogService;
-import eu.playproject.platform.service.bootstrap.api.Subscription;
-import eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry;
 import eu.playproject.platform.service.bootstrap.api.TopicManager;
 import fr.inria.eventcloud.webservices.api.EventCloudManagementWsApi;
 
@@ -76,7 +74,12 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 
 		List<Subscription> result = new ArrayList<Subscription>();
 
-		List<Topic> topics = governanceClient.getTopics();
+		List<Topic> topics;
+		try {
+			topics = governanceClient.getTopics();
+		} catch (Exception e) {
+			throw new BootstrapFault(e);
+		}
 
 		if (topics == null || topics.size() == 0) {
 			throw new BootstrapFault("Can not get any topic");

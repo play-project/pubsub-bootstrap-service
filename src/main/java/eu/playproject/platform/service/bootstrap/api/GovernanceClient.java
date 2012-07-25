@@ -19,16 +19,13 @@
  */
 package eu.playproject.platform.service.bootstrap.api;
 
-import eu.playproject.governance.api.EventGovernance;
-import eu.playproject.governance.api.TopicMetadataService;
+import org.ow2.play.governance.api.EventGovernance;
 
 /**
  * @author chamerling
  * 
  */
-public interface GovernanceClient extends TopicMetadataService, EventGovernance {
+public interface GovernanceClient extends EventGovernance {
 
-	public static String TOPIC_ENDPOINT = "endpoint.topic";
-	public static String META_ENDPOINT = "endpoint.metadata";
 
 }

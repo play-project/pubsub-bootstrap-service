@@ -31,17 +31,17 @@ import junit.framework.TestCase;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.ow2.play.governance.api.GovernanceExeption;
+import org.ow2.play.governance.api.bean.Subscription;
+import org.ow2.play.governance.api.bean.Topic;
+import org.ow2.play.governance.service.InMemorySubscriptionRegistryService;
 import org.ow2.play.metadata.api.Data;
 import org.ow2.play.metadata.api.MetaResource;
 import org.ow2.play.metadata.api.MetadataException;
 import org.ow2.play.metadata.api.Resource;
 import org.ow2.play.metadata.api.service.MetadataService;
 
-import eu.playproject.governance.api.GovernanceExeption;
-import eu.playproject.governance.api.bean.Metadata;
-import eu.playproject.governance.api.bean.Topic;
 import eu.playproject.platform.service.bootstrap.api.GovernanceClient;
-import eu.playproject.platform.service.bootstrap.api.Subscription;
 
 public class CreationTest extends TestCase {
 
@@ -49,7 +49,7 @@ public class CreationTest extends TestCase {
 	public void testCreate() throws Exception {
 
 		Topic t1 = new Topic();
-		
+
 		// just subscribe for T1
 		t1.setName("T1");
 		t1.setNs("http://foo");
@@ -71,7 +71,7 @@ public class CreationTest extends TestCase {
 		service.setEventCloudClientFactory(new EventCloudClientFactoryMock(
 				ecEndpoint));
 		service.setTopicManager(new TopicManagerMock());
-		service.setSubscriptionRegistry(new SubscriptionRegistryServiceImpl());
+		service.setSubscriptionRegistry(new InMemorySubscriptionRegistryService());
 		service.setGovernanceClient(new GovernanceClient() {
 
 			@Override
@@ -110,46 +110,6 @@ public class CreationTest extends TestCase {
 				// TODO Auto-generated method stub
 
 			}
-
-			@Override
-			public void removeMetadata(Topic arg0, Metadata arg1)
-					throws GovernanceExeption {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public List<Topic> getTopicsWithMeta(List<Metadata> arg0)
-					throws GovernanceExeption {
-				return null;
-			}
-
-			@Override
-			public Metadata getMetadataValue(Topic arg0, String arg1)
-					throws GovernanceExeption {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public List<Metadata> getMetaData(Topic arg0)
-					throws GovernanceExeption {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public boolean deleteMetaData(Topic arg0) throws GovernanceExeption {
-				// TODO Auto-generated method stub
-				return false;
-			}
-
-			@Override
-			public void addMetadata(Topic arg0, Metadata arg1)
-					throws GovernanceExeption {
-				// TODO Auto-generated method stub
-
-			}
 		});
 
 		service.setMetadataServiceClient(new MetadataService() {
@@ -183,13 +143,14 @@ public class CreationTest extends TestCase {
 			@WebMethod
 			public org.ow2.play.metadata.api.Metadata getMetadataValue(
 					Resource resource, String arg1) throws MetadataException {
-				
-				System.out.println("Get meta for resource " + resource.getUrl() + "  :  " + resource.getName());
-				
+
+				System.out.println("Get meta for resource " + resource.getUrl()
+						+ "  :  " + resource.getName());
+
 				if (resource.toString().contains("T1")) {
-				return new org.ow2.play.metadata.api.Metadata(
-						"http://www.play-project.eu/xml/ns/dsbneedstosubscribe",
-						new Data("literal", "true"));
+					return new org.ow2.play.metadata.api.Metadata(
+							"http://www.play-project.eu/xml/ns/dsbneedstosubscribe",
+							new Data("literal", "true"));
 				} else {
 					return null;
 				}
@@ -227,7 +188,7 @@ public class CreationTest extends TestCase {
 				subscriberEndpoint);
 
 		System.out.println(result);
-		
+
 		Assert.assertTrue(result.size() == 1);
 	}
 }

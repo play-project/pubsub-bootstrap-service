@@ -33,8 +33,6 @@ import org.ow2.play.service.registry.api.Registry;
 import org.ow2.play.service.registry.api.RegistryException;
 import org.petalslink.dsb.cxf.CXFHelper;
 
-import eu.playproject.platform.service.bootstrap.Constants;
-
 /**
  * @author chamerling
  * 
@@ -59,7 +57,8 @@ public class MetadataServiceClient implements MetadataService {
 
 			String url = null;
 			try {
-				url = registry.get(Constants.METADATA_SERVICE);
+				url = registry
+						.get(org.ow2.play.service.registry.api.Constants.METADATA);
 			} catch (RegistryException e) {
 				throw new MetadataException(e);
 			}

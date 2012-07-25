@@ -20,20 +20,18 @@
 package eu.playproject.platform.service.bootstrap.client;
 
 import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
-import java.util.Properties;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
+import org.ow2.play.governance.api.EventGovernance;
+import org.ow2.play.governance.api.GovernanceExeption;
+import org.ow2.play.governance.api.bean.Topic;
+import org.ow2.play.service.registry.api.Constants;
+import org.ow2.play.service.registry.api.RegistryException;
 import org.petalslink.dsb.cxf.CXFHelper;
 
-import eu.playproject.governance.api.EventGovernance;
-import eu.playproject.governance.api.GovernanceExeption;
-import eu.playproject.governance.api.TopicMetadataService;
-import eu.playproject.governance.api.bean.Metadata;
-import eu.playproject.governance.api.bean.Topic;
 import eu.playproject.platform.service.bootstrap.api.GovernanceClient;
 
 /**
@@ -44,48 +42,22 @@ import eu.playproject.platform.service.bootstrap.api.GovernanceClient;
  */
 public class GovernanceClientImpl implements GovernanceClient {
 
-	private static final String config = "https://raw.github.com/play-project/play-configfiles/master/platformservices/pubsubbootstrap/config.properties";
-
-	private TopicMetadataService metaClient = null;
-
 	private EventGovernance eventClient = null;
 
-	private Properties props;
-
-	private TopicMetadataService getMetaClient() {
-
-		if (metaClient == null) {
-			metaClient = CXFHelper.getClientFromFinalURL(getConfig()
-					.getProperty(META_ENDPOINT), TopicMetadataService.class);
-		}
-		return metaClient;
-	}
+	private ServiceRegistry serviceRegistry = null;
 
 	private EventGovernance getEventClient() {
 
 		if (eventClient == null) {
-			eventClient = CXFHelper.getClientFromFinalURL(getConfig()
-					.getProperty(TOPIC_ENDPOINT), EventGovernance.class);
-		}
-		return eventClient;
-	}
-
-	/**
-	 * To be overrided if needed...
-	 * 
-	 * @return
-	 */
-	protected Properties getConfig() {
-		if (props == null) {
 			try {
-				props = new Properties();
-				URL url = new URL(config);
-				props.load(url.openStream());
-			} catch (Exception e) {
+				eventClient = CXFHelper.getClientFromFinalURL(
+						serviceRegistry.get(Constants.GOVERNANCE),
+						EventGovernance.class);
+			} catch (RegistryException e) {
 				e.printStackTrace();
 			}
 		}
-		return props;
+		return eventClient;
 	}
 
 	@Override
@@ -116,7 +88,7 @@ public class GovernanceClientImpl implements GovernanceClient {
 	}
 
 	@Override
-	public List<Topic> getTopics() {
+	public List<Topic> getTopics() throws GovernanceExeption {
 		return getEventClient().getTopics();
 	}
 
@@ -126,41 +98,11 @@ public class GovernanceClientImpl implements GovernanceClient {
 				"This method is not implemented in the client");
 	}
 
-	@Override
-	public void addMetadata(Topic arg0, Metadata arg1)
-			throws GovernanceExeption {
-		throw new GovernanceExeption(
-				"This method is not implemented in the client");
-	}
-
-	@Override
-	public boolean deleteMetaData(Topic arg0) throws GovernanceExeption {
-		throw new GovernanceExeption(
-				"This method is not implemented in the client");
-	}
-
-	@Override
-	public List<Metadata> getMetaData(Topic topic) throws GovernanceExeption {
-		return getMetaClient().getMetaData(topic);
-	}
-
-	@Override
-	public Metadata getMetadataValue(Topic arg0, String arg1)
-			throws GovernanceExeption {
-		throw new GovernanceExeption(
-				"This method is not implemented in the client");
-	}
-
-	@Override
-	public List<Topic> getTopicsWithMeta(List<Metadata> list)
-			throws GovernanceExeption {
-		return getMetaClient().getTopicsWithMeta(list);
-	}
-
-	@Override
-	public void removeMetadata(Topic arg0, Metadata arg1)
-			throws GovernanceExeption {
-		throw new GovernanceExeption(
-				"This method is not implemented in the client");
+	/**
+	 * @param serviceRegistry
+	 *            the serviceRegistry to set
+	 */
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.serviceRegistry = serviceRegistry;
 	}
 }

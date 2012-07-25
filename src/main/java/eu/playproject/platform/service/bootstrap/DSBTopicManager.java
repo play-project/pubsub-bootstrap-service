@@ -24,6 +24,9 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import org.ow2.play.governance.api.SubscriptionRegistry;
+import org.ow2.play.governance.api.bean.Subscription;
+import org.ow2.play.governance.api.bean.Topic;
 import org.petalslink.dsb.notification.client.http.simple.HTTPProducerClient;
 import org.petalslink.dsb.notification.client.http.simple.HTTPSubscriptionManagerClient;
 import org.petalslink.dsb.notification.commons.NotificationException;
@@ -37,10 +40,7 @@ import com.ebmwebsourcing.wsstar.resourceproperties.datatypes.impl.impl.WsrfrpMo
 import com.ebmwebsourcing.wsstar.topics.datatypes.impl.impl.WstopModelFactoryImpl;
 import com.ebmwebsourcing.wsstar.wsnb.services.impl.util.Wsnb4ServUtils;
 
-import eu.playproject.governance.api.bean.Topic;
 import eu.playproject.platform.service.bootstrap.api.BootstrapFault;
-import eu.playproject.platform.service.bootstrap.api.Subscription;
-import eu.playproject.platform.service.bootstrap.api.SubscriptionRegistry;
 import eu.playproject.platform.service.bootstrap.api.TopicManager;
 
 /**
