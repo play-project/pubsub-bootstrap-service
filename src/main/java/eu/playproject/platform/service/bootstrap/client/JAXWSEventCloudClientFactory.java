@@ -33,6 +33,9 @@ import fr.inria.eventcloud.webservices.api.EventCloudManagementWsApi;
  */
 public class JAXWSEventCloudClientFactory implements EventCloudClientFactory {
 
+	/**
+	 * Cache client per endpoint URL
+	 */
 	static Map<String, EventCloudManagementWsApi> cache = new HashMap<String, EventCloudManagementWsApi>();
 
 	@Override
