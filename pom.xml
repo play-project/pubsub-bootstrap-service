@@ -86,7 +86,7 @@
 			<exclusions>
 				<exclusion>
 					<groupId>fr.inria.eventcloud</groupId>
-					<artifactId>eventcloud-translator-wsn</artifactId>
+					<artifactId>eventcloud-translators-wsn</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.apache.cxf.services.wsn</groupId>
