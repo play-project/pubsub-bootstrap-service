@@ -22,10 +22,12 @@ package eu.playproject.platform.service.bootstrap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import org.ow2.play.governance.api.GovernanceExeption;
 import org.ow2.play.governance.api.SubscriptionRegistry;
 import org.ow2.play.governance.api.bean.Subscription;
 import org.ow2.play.governance.api.bean.Topic;
@@ -196,8 +198,22 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 	protected boolean alreadySubscribed(Topic topic, String eventCloudEndpoint,
 			String dsbEndpoint) {
 
-		List<Subscription> subscriptions = this.subscriptionRegistry
-				.getSubscriptions();
+		List<Subscription> subscriptions;
+		try {
+			subscriptions = this.subscriptionRegistry
+					.getSubscriptions();
+		} catch (GovernanceExeption e) {
+			if (logger.isLoggable(Level.FINE)) {
+				logger.log(Level.WARNING, "Got an error while getting subscriptions", e);
+			} else {
+				logger.warning("Got an error while getting subscriptions");
+			}
+			return false;
+		}
+		
+		if (subscriptions == null) {
+			return false;
+		}
 
 		Iterator<Subscription> iter = subscriptions.iterator();
 		boolean found = false;

@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import org.ow2.play.governance.api.GovernanceExeption;
 import org.ow2.play.governance.api.SubscriptionRegistry;
 import org.ow2.play.governance.api.bean.Subscription;
 import org.ow2.play.governance.api.bean.Topic;
@@ -92,6 +93,9 @@ public class DSBTopicManager implements TopicManager {
 		} catch (NotificationException e) {
 			logger.log(Level.SEVERE, "Problem while subscribing", e);
 			throw new BootstrapFault(e);
+		} catch (GovernanceExeption e) {
+			logger.log(Level.WARNING, "Problem while saving subscription", e);
+			//throw new BootstrapFault(e);
 		}
 		return subscription;
 	}
@@ -116,6 +120,8 @@ public class DSBTopicManager implements TopicManager {
 				this.subscriptionRegistry.remove(subscription);
 			}
 		} catch (NotificationException e) {
+			e.printStackTrace();
+		} catch (GovernanceExeption e) {
 			e.printStackTrace();
 		}
 

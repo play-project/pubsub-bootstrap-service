@@ -20,7 +20,9 @@
 package eu.playproject.platform.service.bootstrap.rest;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
+import org.ow2.play.governance.api.GovernanceExeption;
 import org.ow2.play.governance.api.SubscriptionRegistry;
 
 import eu.playproject.platform.service.bootstrap.api.rest.SubscriptionRegistryService;
@@ -37,29 +39,50 @@ public class SubscriptionRegistryServiceImpl implements
 
 	@Override
 	public Response all() {
-		return Response.ok(
-				new Subscriptions(subscriptionRegistry.getSubscriptions()))
-				.build();
+		try {
+			return Response.ok(
+					new Subscriptions(subscriptionRegistry.getSubscriptions()))
+					.build();
+		} catch (GovernanceExeption e) {
+			e.printStackTrace();
+			return Response.status(Status.SERVICE_UNAVAILABLE).build();
+		}
 	}
 
 	@Override
 	public Response clear() {
-		return Response.ok(new Subscriptions(subscriptionRegistry.removeAll()))
-				.build();
+		try {
+			return Response.ok(
+					new Subscriptions(subscriptionRegistry.removeAll()))
+					.build();
+		} catch (GovernanceExeption e) {
+			e.printStackTrace();
+			return Response.status(Status.SERVICE_UNAVAILABLE).build();
+		}
 	}
 
 	@Override
 	public Response clearAllFromSubscriber(String url) {
-		return Response.ok(
-				new Subscriptions(subscriptionRegistry
-						.removeAllFromConsumer(url))).build();
+		try {
+			return Response.ok(
+					new Subscriptions(subscriptionRegistry
+							.removeAllFromConsumer(url))).build();
+		} catch (GovernanceExeption e) {
+			e.printStackTrace();
+			return Response.status(Status.SERVICE_UNAVAILABLE).build();
+		}
 	}
 
 	@Override
 	public Response clearAllFromProvider(String url) {
-		return Response.ok(
-				new Subscriptions(subscriptionRegistry
-						.removeAllFromProvider(url))).build();
+		try {
+			return Response.ok(
+					new Subscriptions(subscriptionRegistry
+							.removeAllFromProvider(url))).build();
+		} catch (GovernanceExeption e) {
+			e.printStackTrace();
+			return Response.status(Status.SERVICE_UNAVAILABLE).build();
+		}
 	}
 
 	public void setSubscriptionRegistry(

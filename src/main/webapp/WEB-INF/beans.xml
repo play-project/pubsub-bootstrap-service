@@ -28,24 +28,28 @@
 
 	<bean id="registry"
 		class="eu.playproject.platform.service.bootstrap.client.ServiceRegistry">
-		<property name="url" value="http://localhost:8080/registry/RegistryService"/>
+		<property name="url"
+			value="http://localhost:8080/registry/RegistryService" />
 	</bean>
-	
-	<bean id="metaclient" class="eu.playproject.platform.service.bootstrap.client.MetadataServiceClient">
-		<property name="registry" ref="registry"/>
+
+	<bean id="metaclient"
+		class="eu.playproject.platform.service.bootstrap.client.MetadataServiceClient">
+		<property name="registry" ref="registry" />
 	</bean>
-	
+
 	<bean id="jsonprovider" class="org.apache.cxf.jaxrs.provider.JSONProvider">
 		<property name="serializeAsArray" value="true" />
 	</bean>
 
 	<bean id="governanceclient"
 		class="eu.playproject.platform.service.bootstrap.client.GovernanceClientImpl">
-		<property name="serviceRegistry" ref="registry"/>
+		<property name="serviceRegistry" ref="registry" />
 	</bean>
 
 	<bean id="subscriptionregistry"
-		class="org.ow2.play.governance.service.InMemorySubscriptionRegistryService" />
+		class="eu.playproject.platform.service.bootstrap.client.SubscriptionRegistryClient">
+		<property name="registry" ref="registry" />
+	</bean>
 
 	<bean id="topicmanager"
 		class="eu.playproject.platform.service.bootstrap.DSBTopicManager">
@@ -61,7 +65,7 @@
 		<property name="eventCloudClientFactory" ref="eventcloudclientfactory" />
 		<property name="governanceClient" ref="governanceclient" />
 		<property name="subscriptionRegistry" ref="subscriptionregistry" />
-		<property name="metadataServiceClient" ref="metaclient"/>
+		<property name="metadataServiceClient" ref="metaclient" />
 	</bean>
 
 	<bean id="ecsubscribestodsbbootstrap"
@@ -70,7 +74,7 @@
 		<property name="eventCloudClientFactory" ref="eventcloudclientfactory" />
 		<property name="governanceClient" ref="governanceclient" />
 		<property name="subscriptionRegistry" ref="subscriptionregistry" />
-		<property name="metadataServiceClient" ref="metaclient"/>
+		<property name="metadataServiceClient" ref="metaclient" />
 	</bean>
 
 	<bean id="logservice"

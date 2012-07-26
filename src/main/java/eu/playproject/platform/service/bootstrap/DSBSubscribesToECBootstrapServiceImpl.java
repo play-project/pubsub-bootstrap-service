@@ -22,6 +22,7 @@ package eu.playproject.platform.service.bootstrap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -190,9 +191,23 @@ public class DSBSubscribesToECBootstrapServiceImpl implements BootstrapService {
 	protected boolean alreadySubscribed(Topic topic, String eventCloudEndpoint,
 			String subscriberEndpoint) {
 
-		List<Subscription> subscriptions = this.subscriptionRegistry
-				.getSubscriptions();
-
+		List<Subscription> subscriptions = null;
+		try {
+			subscriptions = this.subscriptionRegistry
+					.getSubscriptions();
+		} catch (GovernanceExeption e) {
+			if (logger.isLoggable(Level.FINE)) {
+				logger.log(Level.WARNING, "Got an error while getting subscriptions", e);
+			} else {
+				logger.warning("Got an error while getting subscriptions");
+			}
+			return false;
+		}
+		
+		if (subscriptions == null) {
+			return false;
+		}
+		
 		Iterator<Subscription> iter = subscriptions.iterator();
 		boolean found = false;
 		while (iter.hasNext() && !found) {
