@@ -81,7 +81,8 @@ public class InitServiceImpl implements InitService {
 		String eventCloudEndpoint = null;
 		String subscriberEndpoint = null;
 		try {
-			eventCloudEndpoint = "http://138.96.19.125:8085/proactive/services/EventCloud_management-webservices";
+		    eventCloudEndpoint = endpointRegistry
+		            .get(org.ow2.play.service.registry.api.Constants.DSB_TO_EC_EC);
 			subscriberEndpoint = endpointRegistry
 					.get(org.ow2.play.service.registry.api.Constants.DSB_TO_EC_EC_SUBSCRIBER);
 		} catch (RegistryException e1) {
@@ -127,7 +128,8 @@ public class InitServiceImpl implements InitService {
 		String eventCloudEndpoint = null;
 		String dsbEndpoint = null;
 		try {
-			eventCloudEndpoint = "http://138.96.19.125:8085/proactive/services/EventCloud_management-webservices";
+			eventCloudEndpoint = endpointRegistry
+			        .get(org.ow2.play.service.registry.api.Constants.EC_TO_DSB_EC);
 			dsbEndpoint = endpointRegistry
 					.get(org.ow2.play.service.registry.api.Constants.EC_TO_DSB_DSB);
 		} catch (RegistryException e1) {
