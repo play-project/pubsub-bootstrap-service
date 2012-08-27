@@ -43,7 +43,7 @@ import eu.playproject.platform.service.bootstrap.api.EventCloudClientFactory;
 import eu.playproject.platform.service.bootstrap.api.GovernanceClient;
 import eu.playproject.platform.service.bootstrap.api.LogService;
 import eu.playproject.platform.service.bootstrap.api.TopicManager;
-import fr.inria.eventcloud.webservices.api.EventCloudManagementWsApi;
+import fr.inria.eventcloud.webservices.api.EventCloudManagementServiceApi;
 
 /**
  * The EventCloud subscribes to the DSB topics. Just for the simple topics and
@@ -114,7 +114,7 @@ public class ECSubscribesToDSBBootstrapServiceImpl implements BootstrapService {
 
 		Subscription result = null;
 
-		EventCloudManagementWsApi client = eventCloudClientFactory
+		EventCloudManagementServiceApi client = eventCloudClientFactory
 				.getClient(subscriberEndpoint);
 
 		QName topicName = new QName(topic.getNs(), topic.getName(),

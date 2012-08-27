@@ -19,7 +19,7 @@
  */
 package eu.playproject.platform.service.bootstrap.api;
 
-import fr.inria.eventcloud.webservices.api.EventCloudManagementWsApi;
+import fr.inria.eventcloud.webservices.api.EventCloudManagementServiceApi;
 
 /**
  * @author chamerling
@@ -27,12 +27,13 @@ import fr.inria.eventcloud.webservices.api.EventCloudManagementWsApi;
  */
 public interface EventCloudClientFactory {
 
-	/**
-	 * Get a client for the given endpoint
-	 * 
-	 * @param endpoint
-	 * @return
-	 */
-	EventCloudManagementWsApi getClient(String endpoint);
+    /**
+     * Get a client for the given endpoint
+     * 
+     * @param endpoint
+     * 
+     * @return
+     */
+    EventCloudManagementServiceApi getClient(String endpoint);
 
 }

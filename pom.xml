@@ -54,7 +54,7 @@
 			<artifactId>governance-service</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.ow2.play</groupId>
 			<artifactId>play-metadata-api</artifactId>
@@ -83,20 +83,6 @@
 			<groupId>fr.inria.eventcloud</groupId>
 			<artifactId>eventcloud-webservices-api</artifactId>
 			<version>1.1.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>fr.inria.eventcloud</groupId>
-					<artifactId>eventcloud-translators-wsn</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.cxf.services.wsn</groupId>
-					<artifactId>cxf-services-wsn-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>eu.play-project</groupId>
-					<artifactId>play-commons-eventformat</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>

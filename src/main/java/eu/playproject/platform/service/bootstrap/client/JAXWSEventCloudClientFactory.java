@@ -25,7 +25,7 @@ import java.util.Map;
 import org.petalslink.dsb.cxf.CXFHelper;
 
 import eu.playproject.platform.service.bootstrap.api.EventCloudClientFactory;
-import fr.inria.eventcloud.webservices.api.EventCloudManagementWsApi;
+import fr.inria.eventcloud.webservices.api.EventCloudManagementServiceApi;
 
 /**
  * @author chamerling
@@ -36,13 +36,13 @@ public class JAXWSEventCloudClientFactory implements EventCloudClientFactory {
 	/**
 	 * Cache client per endpoint URL
 	 */
-	static Map<String, EventCloudManagementWsApi> cache = new HashMap<String, EventCloudManagementWsApi>();
+	static Map<String, EventCloudManagementServiceApi> cache = new HashMap<String, EventCloudManagementServiceApi>();
 
 	@Override
-	public synchronized EventCloudManagementWsApi getClient(String endpoint) {
+	public synchronized EventCloudManagementServiceApi getClient(String endpoint) {
 		if (cache.get(endpoint) == null) {
-			EventCloudManagementWsApi client = CXFHelper.getClientFromFinalURL(
-					endpoint, EventCloudManagementWsApi.class);
+			EventCloudManagementServiceApi client = CXFHelper.getClientFromFinalURL(
+					endpoint, EventCloudManagementServiceApi.class);
 			cache.put(endpoint, client);
 		}
 		return cache.get(endpoint);
