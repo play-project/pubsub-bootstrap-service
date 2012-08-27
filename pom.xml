@@ -83,6 +83,16 @@
 			<groupId>fr.inria.eventcloud</groupId>
 			<artifactId>eventcloud-webservices-api</artifactId>
 			<version>1.1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>fr.inria.eventcloud</groupId>
+					<artifactId>eventcloud-translators-wsn</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>eu.play-project</groupId>
+					<artifactId>play-commons-eventformat</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
