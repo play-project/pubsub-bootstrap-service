@@ -1,3 +1,5 @@
+# Deperecated, check https://github.com/play-project/pubsub-bootstrap-service
+
 # Pubsub Bootstrap module
 
 ## Description
